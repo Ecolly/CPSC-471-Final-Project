@@ -29,6 +29,28 @@ app.get("/", (req, res) => {
   });
 });
 
+app.get("/cleanerView68", (req, res) => {
+  const q = "SELECT * FROM airbnbnetwork.cleaner";
+  db.query(q, (err, data) => {
+    if (err) {
+      console.log(err);
+      return res.json(err);
+    }
+    return res.json(data);
+  });
+});
+
+app.post("/cleanerView68", (req, res) => {
+  const q = "INSERT INTO cleaner (id, bankAccount) VALUES (?, ?)";
+  const values = [req.body.id, req.body.bankAccount];
+  db.query(q, values, (err, data) => {
+    if (err
+      ) return
+    res.send
+    return res.json(data);
+  });
+});
+
 app.post("/login", (req, res) => {
   const {email, password} = req.body;
   console.log("Login attempt:", { email, password });
