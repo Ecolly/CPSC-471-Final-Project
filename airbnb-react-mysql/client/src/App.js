@@ -3,6 +3,7 @@ import Add from "./pages/Add";
 import Home from "./pages/Homepage";
 import Update from "./pages/Update";
 import Login from "./pages/LoginPage";
+import CleanerView from "./pages/CleanerView";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Add />} />
           <Route path="/update/:id" element={<Update />} />
+          <Route path="/cleanerview/:id"element={<CleanerView />} />
         </Routes>
       </BrowserRouter>
     </div>

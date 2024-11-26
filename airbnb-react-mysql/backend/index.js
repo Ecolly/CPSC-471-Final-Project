@@ -7,9 +7,9 @@ app.use(cors()); // can specify domain name here
 app.use(express.json());
 
 const db = mysql.createConnection({
-  host: "127.0.0.1",
+  host: "localhost",
   user: "root",
-  password: "xxxxxxxxxx",
+  password: "root",
   database: "airbnbnetwork",
 });
 
@@ -25,6 +25,82 @@ app.get("/", (req, res) => {
       console.log(err);
       return res.json(err);
     }
+    return res.json(data);
+  });
+});
+
+app.get("/cleanerView/68", (req, res) => {
+  const cleanerID = 68;
+  const q = "SELECT * FROM airbnbnetwork.cleaner WHERE idcleaner = ?";
+  db.query(q, [cleanerID], (err, data) => {
+    if (err) {
+      console.log(err);
+      return res.json(err);
+    }
+    return res.json(data);
+  });
+});
+
+//Job Board information
+app.get("/jobBoard", (req, res) => {
+  const q = `
+    SELECT 
+      idrequest,
+      ownerid,
+      propertyid,
+      CAST(\`Payment Amount\` AS DECIMAL(10, 2)) AS paymentAmount,
+      \`Payment Type\`,
+      \`Service Description\`,
+      \`Service date\`
+    FROM airbnbnetwork.requests
+  `;
+  db.query(q, (err, data) => {
+    if (err) {
+      console.error("Database query error:", err);
+      return res.status(500).json({ error: "Failed to fetch job data" });
+    }
+
+    // 遍历数据，将字符串转为数字（如果需要）
+    const formattedData = data.map((row) => ({
+      ...row,
+      paymentAmount: parseFloat(row["paymentAmount"]),
+    }));
+
+    res.json(formattedData);
+  });
+});
+
+//Orders information for cleaner
+app.get("/cleanerorders", (req, res) => {
+  const q = `
+    SELECT 
+      o.idorders,
+      o.idrequest,
+      o.idcleaner,
+      o.idowner,
+      r.\`Service Description\` AS service_description,
+      r.\`Service date\` AS service_date
+    FROM orders o
+    LEFT JOIN requests r ON o.idrequest = r.idrequest;
+  `;
+
+  db.query(q, (err, data) => {
+    if (err) {
+      console.error("Database query error:", err);
+      return res.status(500).json({ error: "Failed to fetch orders data" });
+    }
+    res.status(200).json(data); // 返回 orders 表的全部数据
+  });
+});
+
+
+app.post("/cleanerView68", (req, res) => {
+  const q = "INSERT INTO cleaner (id, bankAccount) VALUES (?, ?)";
+  const values = [req.body.id, req.body.bankAccount];
+  db.query(q, values, (err, data) => {
+    if (err
+      ) return
+    res.send
     return res.json(data);
   });
 });
