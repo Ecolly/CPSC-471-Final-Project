@@ -3,18 +3,7 @@ import axios from "axios";
 
 const CleanerView = () => {
   const [content, setContent] = useState("Welcome! Click a button to see content here.");
-  const [book, setBook] = useState({
-    title: "",
-    desc: "",
-    price: null,
-    cover: "",
-  });
   const [error, setError] = useState(false);
-
-  const [cleaner, setCleaner] = useState({
-    id: "",
-    bankAccount: "",
-  });
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
@@ -136,23 +125,6 @@ const CleanerView = () => {
   };
   
 
-  const handleChange = (e) => {
-    setBook((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleUpdateBook = async (e) => {
-    e.preventDefault();
-    try {
-      const bookId = 1; // 替换为动态获取的 Book ID
-      await axios.put(`http://localhost:8800/books/${bookId}`, book);
-      setContent("Book updated successfully!");
-    } catch (err) {
-      console.error(err);
-      setError(true);
-      setContent("Something went wrong while updating the book.");
-    }
-  };
-
   const handleShowCleaner = async (e) => {
     e.preventDefault();
     try {
@@ -210,45 +182,6 @@ const CleanerView = () => {
           </button>
           <button className="nav-button" onClick={handleOrderHistory}>
             Order History
-          </button>
-          <button
-            className="nav-button"
-            onClick={() =>
-              setContent(
-                <div className="form">
-                  <h1>Update the Book</h1>
-                  <input
-                    type="text"
-                    placeholder="Book title"
-                    name="title"
-                    onChange={handleChange}
-                  />
-                  <textarea
-                    rows={5}
-                    type="text"
-                    placeholder="Book desc"
-                    name="desc"
-                    onChange={handleChange}
-                  />
-                  <input
-                    type="number"
-                    placeholder="Book price"
-                    name="price"
-                    onChange={handleChange}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Book cover"
-                    name="cover"
-                    onChange={handleChange}
-                  />
-                  <button onClick={handleUpdateBook}>Update</button>
-                  {error && <p style={{ color: "red" }}>Something went wrong!</p>}
-                </div>
-              )
-            }
-          >
-            Update Book
           </button>
         </nav>
       </header>
