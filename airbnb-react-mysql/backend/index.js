@@ -30,8 +30,23 @@ app.get("/", (req, res) => {
 });
 
 app.get("/cleanerView/68", (req, res) => {
-  const cleanerID = 68;
-  const q = "SELECT * FROM airbnbnetwork.cleaner WHERE idcleaner = ?";
+  const cleanerID = 68; //hardcode the ID number here
+  const q = `
+  SELECT 
+        u.\`First Name\`,
+        u.\`Last Name\`,
+        u.Email,
+        u.\`Phone Number\`,
+        u.City,
+        u.Street,
+        u.ZIP,
+        c.\`Bank Account #\`,
+        t.\`Cleaning Tools\`
+    FROM airbnbnetwork.cleaner c
+    LEFT JOIN airbnbnetwork.users u ON c.idcleaner = u.idusers
+    LEFT JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
+    WHERE c.idcleaner = ? `;
+  
   db.query(q, [cleanerID], (err, data) => {
     if (err) {
       console.log(err);

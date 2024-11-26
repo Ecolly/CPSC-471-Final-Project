@@ -129,25 +129,50 @@ const CleanerView = () => {
     e.preventDefault();
     try {
       const res = await axios.get(`http://localhost:8800/cleanerView/68`); 
-      const cleaners = res.data; 
+      const cleaner = res.data[0]; 
+  
       setContent(
         <div>
-          <h3>Cleaners Info</h3>
-          {cleaners.length > 0 ? (
+          <h3>Cleaner Info</h3>
+          {cleaner ? (
             <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Bank Account</th>
-                </tr>
-              </thead>
               <tbody>
-                {cleaners.map((cleaner) => (
-                  <tr key={cleaner.idcleaner}>
-                    <td>{cleaner.idcleaner}</td>
-                    <td>{cleaner["Bank Account #"]}</td>
-                  </tr>
-                ))}
+                <tr>
+                  <th>First Name</th>
+                  <td>{cleaner['First Name']}</td>
+                </tr>
+                <tr>
+                  <th>Last Name</th>
+                  <td>{cleaner['Last Name']}</td>
+                </tr>
+                <tr>
+                  <th>Email</th>
+                  <td>{cleaner.Email}</td>
+                </tr>
+                <tr>
+                  <th>Phone Number</th>
+                  <td>{cleaner['Phone Number']}</td>
+                </tr>
+                <tr>
+                  <th>City</th>
+                  <td>{cleaner.City}</td>
+                </tr>
+                <tr>
+                  <th>Street</th>
+                  <td>{cleaner.Street}</td>
+                </tr>
+                <tr>
+                  <th>ZIP</th>
+                  <td>{cleaner.ZIP}</td>
+                </tr>
+                <tr>
+                  <th>Bank Account #</th>
+                  <td>{cleaner['Bank Account #']}</td>
+                </tr>
+                <tr>
+                  <th>Cleaning Tools</th>
+                  <td>{cleaner['Cleaning Tools']}</td>
+                </tr>
               </tbody>
             </table>
           ) : (
@@ -161,6 +186,7 @@ const CleanerView = () => {
       setContent("Something went wrong while fetching the cleaner data.");
     }
   };
+  
   
 
   return (
