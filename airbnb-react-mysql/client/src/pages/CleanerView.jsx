@@ -29,6 +29,10 @@ const CleanerView = () => {
     }
   };
 
+  const handleBidHistory = async () => {
+    setContent("No Bid history available.");
+  };
+
   const handleCheckJobBoard = async (e) => {
     e.preventDefault();
     try {
@@ -152,8 +156,8 @@ const CleanerView = () => {
   const handleShowCleaner = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.get(`http://localhost:8800/cleanerView/68`); // 获取 Cleaner 数据
-      const cleaners = res.data; // 获取所有记录
+      const res = await axios.get(`http://localhost:8800/cleanerView/68`); 
+      const cleaners = res.data; 
       setContent(
         <div>
           <h3>Cleaners Info</h3>
@@ -200,6 +204,9 @@ const CleanerView = () => {
           </button>
           <button className="nav-button" onClick={handleCheckJobBoard}>
             Check Job Board
+          </button>
+          <button className="nav-button" onClick={handleBidHistory}>
+            Bid History
           </button>
           <button className="nav-button" onClick={handleOrderHistory}>
             Order History

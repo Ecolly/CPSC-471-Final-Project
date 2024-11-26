@@ -31,7 +31,6 @@ app.get("/", (req, res) => {
 
 app.get("/cleanerView/68", (req, res) => {
   const cleanerID = 68;
-  console.log("Cleaner ID:", cleanerID); 
   const q = "SELECT * FROM airbnbnetwork.cleaner WHERE idcleaner = ?";
   db.query(q, [cleanerID], (err, data) => {
     if (err) {
