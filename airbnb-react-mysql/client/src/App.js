@@ -14,7 +14,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Add />} />
           <Route path="/update/:id" element={<Update />} />
-          <Route path="/cleanerview68"element={<CleanerView />} />
+          <Route path="/cleanerview/:id"element={<CleanerView />} />
         </Routes>
       </BrowserRouter>
     </div>

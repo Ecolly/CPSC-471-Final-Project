@@ -29,9 +29,11 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/cleanerView68", (req, res) => {
-  const q = "SELECT * FROM airbnbnetwork.cleaner";
-  db.query(q, (err, data) => {
+app.get("/cleanerView/68", (req, res) => {
+  const cleanerID = 68;
+  console.log("Cleaner ID:", cleanerID); 
+  const q = "SELECT * FROM airbnbnetwork.cleaner WHERE idcleaner = ?";
+  db.query(q, [cleanerID], (err, data) => {
     if (err) {
       console.log(err);
       return res.json(err);
@@ -39,6 +41,59 @@ app.get("/cleanerView68", (req, res) => {
     return res.json(data);
   });
 });
+
+//Job Board information
+app.get("/jobBoard", (req, res) => {
+  const q = `
+    SELECT 
+      idrequest,
+      ownerid,
+      propertyid,
+      CAST(\`Payment Amount\` AS DECIMAL(10, 2)) AS paymentAmount,
+      \`Payment Type\`,
+      \`Service Description\`,
+      \`Service date\`
+    FROM airbnbnetwork.requests
+  `;
+  db.query(q, (err, data) => {
+    if (err) {
+      console.error("Database query error:", err);
+      return res.status(500).json({ error: "Failed to fetch job data" });
+    }
+
+    // 遍历数据，将字符串转为数字（如果需要）
+    const formattedData = data.map((row) => ({
+      ...row,
+      paymentAmount: parseFloat(row["paymentAmount"]),
+    }));
+
+    res.json(formattedData);
+  });
+});
+
+//Orders information for cleaner
+app.get("/cleanerorders", (req, res) => {
+  const q = `
+    SELECT 
+      o.idorders,
+      o.idrequest,
+      o.idcleaner,
+      o.idowner,
+      r.\`Service Description\` AS service_description,
+      r.\`Service date\` AS service_date
+    FROM orders o
+    LEFT JOIN requests r ON o.idrequest = r.idrequest;
+  `;
+
+  db.query(q, (err, data) => {
+    if (err) {
+      console.error("Database query error:", err);
+      return res.status(500).json({ error: "Failed to fetch orders data" });
+    }
+    res.status(200).json(data); // 返回 orders 表的全部数据
+  });
+});
+
 
 app.post("/cleanerView68", (req, res) => {
   const q = "INSERT INTO cleaner (id, bankAccount) VALUES (?, ?)";
