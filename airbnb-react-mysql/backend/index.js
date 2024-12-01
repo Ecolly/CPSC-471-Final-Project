@@ -72,7 +72,7 @@ app.get("/jobBoard", (req, res) => {
 
 
 //Orders information for cleaner
-app.get("/cleanerorders", (req, res) => {
+app.get("/cleanerorders/:id", (req, res) => {
   const q = `
     SELECT 
       o.idorders,

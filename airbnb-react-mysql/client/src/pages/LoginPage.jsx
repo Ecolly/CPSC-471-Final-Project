@@ -34,8 +34,8 @@ const Login = () => {
       if (role == "cleaner") {
         navigate(`/cleanerView/${id}`); // Navigate to cleaner dashboard
       }
-      if (role == "cleaner") {
-        navigate(`/cleanerView/${id}`); // Navigate to cleaner dashboard
+      if (role == "owner") {
+        navigate(`/ownerView/${id}`); // Navigate to cleaner dashboard
       }  
     
     } catch (err) {

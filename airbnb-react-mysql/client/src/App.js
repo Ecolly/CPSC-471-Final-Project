@@ -16,7 +16,7 @@ function App() {
           <Route path="/register" element={<Add />} />
           <Route path="/update/:id" element={<Update />} />
           <Route path="/cleanerView/:id"element={<CleanerView />} />
-          <Route path="./owner/OwnerView"element={<OwnerView />} />
+          <Route path="/ownerView/:id"element={<OwnerView />} />
         </Routes>
       </BrowserRouter>
     </div>

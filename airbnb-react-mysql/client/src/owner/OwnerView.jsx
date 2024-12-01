@@ -1,20 +1,22 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useParams } from "react-router-dom";
 
-const CleanerView = () => {
+
+const OwnerView = () => {
   const [content, setContent] = useState("Welcome! Click a button to see content here.");
   const [error, setError] = useState(false);
+  const { id } = useParams();
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
-      const cleaner = 1; //change later
-      await axios.put(`http://localhost:8800/cleanerView`, cleaner);
-      setContent("Cleaner updated successfully!");
+      await axios.put(`http://localhost:8800/ownerView/${id}`);
+      setContent("Owner updated successfully!");
     } catch (err) {
       console.error(err);
       setError(true);
-      setContent("Something went wrong while updating the cleaner.");
+      setContent("Something went wrong while updating the owner.");
     }
   };
 
@@ -78,7 +80,7 @@ const CleanerView = () => {
 
   const handleOrderHistory = async () => {
     try {
-      const res = await axios.get("http://localhost:8800/cleanerorders");
+      const res = await axios.get(`http://localhost:8800/ownerorders${id}`);
       const orders = res.data;
   
       setContent(
@@ -90,7 +92,7 @@ const CleanerView = () => {
               <tr>
                 <th>Order ID</th>
                 <th>Request ID</th>
-                <th>Cleaner ID</th>
+                <th>Owner ID</th>
                 <th>Owner ID</th>
                 <th>Service Description</th>
                 <th>Service Date</th>
@@ -125,15 +127,15 @@ const CleanerView = () => {
   };
   
 
-  const handleShowCleaner = async (e) => {
+  const handleShowOwner = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.get(`http://localhost:8800/cleanerView/68`); 
-      const cleaners = res.data; 
+      const res = await axios.get(`http://localhost:8800/ownerView/${id}`); 
+      const owners = res.data; 
       setContent(
         <div>
-          <h3>Cleaners Info</h3>
-          {cleaners.length > 0 ? (
+          <h3>Owners Info</h3>
+          {owners.length > 0 ? (
             <table>
               <thead>
                 <tr>
@@ -142,10 +144,10 @@ const CleanerView = () => {
                 </tr>
               </thead>
               <tbody>
-                {cleaners.map((cleaner) => (
-                  <tr key={cleaner.idcleaner}>
-                    <td>{cleaner.idcleaner}</td>
-                    <td>{cleaner["Bank Account #"]}</td>
+                {owners.map((owners) => (
+                  <tr key={owners.idbnbowner}>
+                    <td>{owners.idbnbowner}</td>
+                    <td>{owners["Bank Account #"]}</td>
                   </tr>
                 ))}
               </tbody>
@@ -166,19 +168,19 @@ const CleanerView = () => {
   return (
     <div className="dashboard">
       <header className="header">
-        <h2>Hello, Cleaner</h2>
+        <h2>Hello, Owner</h2>
         <nav className="navigation">
-          <button className="nav-button" onClick={handleShowCleaner}>
+          <button className="nav-button" onClick={handleShowOwner}>
             Profile
           </button>
           <button className="nav-button" onClick={handleUpdateProfile}>
             Update Profile
           </button>
           <button className="nav-button" onClick={handleCheckJobBoard}>
-            Check Job Board
+            View Property
           </button>
           <button className="nav-button" onClick={handleBidHistory}>
-            Bid History
+            View Requests
           </button>
           <button className="nav-button" onClick={handleOrderHistory}>
             Order History
@@ -192,4 +194,4 @@ const CleanerView = () => {
   );
 };
 
-export default CleanerView;
+export default OwnerView;

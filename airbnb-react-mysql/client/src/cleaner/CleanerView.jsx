@@ -11,8 +11,7 @@ const CleanerView = () => {
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
-      const cleaner = id; //change later
-      await axios.put(`http://localhost:8800/cleanerView`, cleaner);
+      await axios.put(`http://localhost:8800/cleanerView/${id}`);
       setContent("Cleaner updated successfully!");
     } catch (err) {
       console.error(err);
@@ -81,7 +80,7 @@ const CleanerView = () => {
 
   const handleOrderHistory = async () => {
     try {
-      const res = await axios.get("http://localhost:8800/cleanerorders");
+      const res = await axios.get(`http://localhost:8800/cleanerorders${id}`);
       const orders = res.data;
   
       setContent(
