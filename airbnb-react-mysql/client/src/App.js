@@ -4,6 +4,7 @@ import Home from "./pages/Homepage";
 import Update from "./pages/Update";
 import Login from "./pages/LoginPage";
 import CleanerView from "./cleaner/CleanerView";
+import OwnerView from "./owner/OwnerView";
 
 function App() {
   return (
@@ -14,7 +15,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Add />} />
           <Route path="/update/:id" element={<Update />} />
-          <Route path="/cleanerview/:id"element={<CleanerView />} />
+          <Route path="/cleanerView/:id"element={<CleanerView />} />
+          <Route path="./owner/OwnerView"element={<OwnerView />} />
         </Routes>
       </BrowserRouter>
     </div>

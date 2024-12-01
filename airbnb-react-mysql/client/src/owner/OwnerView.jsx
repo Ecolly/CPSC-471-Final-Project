@@ -1,17 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
-
 
 const CleanerView = () => {
   const [content, setContent] = useState("Welcome! Click a button to see content here.");
   const [error, setError] = useState(false);
-  const { id } = useParams();
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
-      const cleaner = id; //change later
+      const cleaner = 1; //change later
       await axios.put(`http://localhost:8800/cleanerView`, cleaner);
       setContent("Cleaner updated successfully!");
     } catch (err) {
@@ -131,7 +128,7 @@ const CleanerView = () => {
   const handleShowCleaner = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.get(`http://localhost:8800/cleanerView/${id}`); 
+      const res = await axios.get(`http://localhost:8800/cleanerView/68`); 
       const cleaners = res.data; 
       setContent(
         <div>

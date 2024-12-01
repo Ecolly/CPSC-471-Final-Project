@@ -21,16 +21,23 @@ const Login = () => {
 
   const handleClick = async (e) => {
     e.preventDefault();
-
+    // else if (role === "owner") {
+    //   navigate("/owner-dashboard"); // Navigate to owner dashboard
+    // }
     try {
       // Send a POST request to the backend login endpoint
       const res = await axios.post("http://localhost:8800/login", credentials);
-      if (res.data.success) {
+      const { role, id } = res.data;
+      //console.log("Login successful. Role:", res.data.role, "ID:", res.data.idusers);
+
         // Navigate to home page or another route upon successful login
-        navigate("/");
-      } else {
-        setError(true);
+      if (role == "cleaner") {
+        navigate(`/cleanerView/${id}`); // Navigate to cleaner dashboard
       }
+      if (role == "cleaner") {
+        navigate(`/cleanerView/${id}`); // Navigate to cleaner dashboard
+      }  
+    
     } catch (err) {
       console.log(err);
       setError(true);

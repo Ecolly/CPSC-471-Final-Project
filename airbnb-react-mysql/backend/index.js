@@ -118,20 +118,60 @@ app.post("/login", (req, res) => {
       return res.status(401).send("Invalid email or password");
     }
 
-    //return the user that was logged into
+    if (results.length === 0) {
+      console.log("No user found with email:", email);
+      return res.status(401).send("Invalid email or password");
+    }
+    
+    //see if the user is a cleaner or an owner
     const user = results[0];
+    console.log("user:", user);
+
     if (password !== user.Password) { 
       //when accessing the attributes of user, if it is not working try checking capitalization
       console.log("Password mismatch:", { provided: password, stored: user.Password });
       return res.status(401).send("Invalid email or password");
     }
-    console.log("Login successful for user:", user);
 
-    // Send role and other user data
-    res.status(200).json({ role: user.role, id: user.id, name: user.name });
+    const cleanerQuery = `SELECT idcleaner FROM cleaner WHERE idcleaner = ? LIMIT 1`;
+    
+    console.log("Checking if user is a cleaner with iduser:", user.idusers);
+    db.query(cleanerQuery, [user.idusers], (err, cleanerResults) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Database error" });
+      }
+      
+
+      if (cleanerResults.length > 0) {
+        // User is a cleaner
+        console.log("Cleaner query results:", cleanerResults);
+        return res.status(200).json({ role: "cleaner", id: user.idusers});
+      }
+      
+      const ownerQuery = `SELECT idbnbowner FROM bnbowner WHERE idbnbowner = ? LIMIT 1`;
+      console.log("Cleaner query results:", cleanerResults);
+
+      db.query(ownerQuery, [user.idusers], (err, ownerResults) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ error: "Database error" });
+        }
+
+        if (ownerResults.length > 0) {
+          console.log("User identified as owner:", user.idusers);
+          // User is an owner
+          return res.status(200).json({ role: "owner", id: user.idusers });
+        }
+
+      
+        console.log("User role not found:", user.id);
+        return res.status(404).json({ error: "User role not found" });
+    
+      });
+    });
   });
 });
-
 
 app.post("/register", (req, res) => {
   const {
