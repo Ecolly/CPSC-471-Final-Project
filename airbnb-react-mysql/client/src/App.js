@@ -3,7 +3,7 @@ import Add from "./pages/Add";
 import Home from "./pages/Homepage";
 import Update from "./pages/Update";
 import Login from "./pages/LoginPage";
-import CleanerView from "./pages/CleanerView";
+import CleanerView from "./cleaner/CleanerView";
 
 function App() {
   return (

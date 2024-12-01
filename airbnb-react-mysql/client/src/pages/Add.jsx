@@ -94,9 +94,9 @@ const Add = () => {
         onChange={handleChange}
       />
       <input
-        type="tel"
-        placeholder="Phone Number"
-        name="phoneNumber"
+        type="tel" //type of input control (tel, text, etc), passord type can obsecure the input box
+        placeholder="Phone Number" //hint or guidance text in the input field
+        name="phoneNumber" //assign a key to the input value when submitted, used to identify data in the backend
         onChange={handleChange}
         required
       />
@@ -112,13 +112,13 @@ const Add = () => {
         onChange={handleChange}
         required
       />
-      <select name="role" onChange={handleChange}>
+      <select name="role" onChange={handleChange}required>
+        <option value="">Select Role</option>
         <option value="cleaner">Cleaner</option>
         <option value="owner">Owner</option>
       </select>
       <button onClick={handleClick}>Add</button>
       {error && "Something went wrong!"}
-      <Link to="/">See all books</Link>
     </div>
   );
 };

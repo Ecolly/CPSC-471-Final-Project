@@ -9,7 +9,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "root",
+  password: "Thisisannoying1!?",
   database: "airbnbnetwork",
 });
 
@@ -69,6 +69,7 @@ app.get("/jobBoard", (req, res) => {
     res.json(formattedData);
   });
 });
+
 
 //Orders information for cleaner
 app.get("/cleanerorders", (req, res) => {
@@ -133,6 +134,21 @@ app.post("/login", (req, res) => {
 
 
 app.post("/register", (req, res) => {
+  const {
+    firstName,
+    middleInitial,
+    lastName,
+    email,
+    password,
+    city,
+    street,
+    zip,
+    phoneNumber,
+    gender,
+    dateOfBirth,
+    role, // This should come from the dropdown
+  } = req.body;
+  
   const q = `
   INSERT INTO users(
     \`First Name\`, 
@@ -147,26 +163,48 @@ app.post("/register", (req, res) => {
     \`Gender\`, 
     \`Date of Birth\`
   ) 
-  VALUES (?)`;
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+  `;
 
-// Extracting values from the request body
-const values = [
-  req.body.firstName, // Matches "First Name" in the SQL table
-  req.body.middleInitial, // Matches "Middle Initial"
-  req.body.lastName, // Matches "Last Name"
-  req.body.email, // Matches "Email"
-  req.body.password, // Matches "Password" (should be hashed before storing)
-  req.body.city, // Matches "City"
-  req.body.street, // Matches "Street"
-  req.body.zip, // Matches "ZIP"
-  req.body.phoneNumber, // Matches "Phone Number"
-  req.body.gender, // Matches "Gender"
-  req.body.dateOfBirth, // Matches "Date of Birth"
+  const userValues = [
+    firstName,
+    middleInitial,
+    lastName,
+    email,
+    password,
+    city,
+    street,
+    zip,
+    phoneNumber,
+    gender,
+    dateOfBirth,
   ];
 
-  db.query(q, [values], (err, data) => {
-    if (err) return res.send(err);
-    return res.json(data);
+// Extracting values from the request body
+
+
+  db.query(q, userValues, (err, data) => {
+    if (err) {
+      console.log(err);
+      return res.status(err);
+    }
+    const personID = data.insertId;
+    console.log("Role value:", role); // Check what value `role` actually holds
+
+    let roleQuery = "";
+    if (role == "cleaner") {
+      roleQuery = "INSERT INTO cleaner (idcleaner) VALUES (?)";
+    } else {
+      roleQuery = "INSERT INTO bnbowner (idbnbowner) VALUES (?)";
+    }
+
+    db.query(roleQuery, [personID], (err) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json("Error saving user to role table");
+      }
+      res.status(200).json("User registered successfully");
+    });
   });
 });
 
