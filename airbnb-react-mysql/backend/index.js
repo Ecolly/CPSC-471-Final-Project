@@ -9,7 +9,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "Thisisannoying1!?",
+  password: "root",
   database: "airbnbnetwork",
 });
 
@@ -29,14 +29,31 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/cleanerView/68", (req, res) => {
-  const cleanerID = 68;
-  const q = "SELECT * FROM airbnbnetwork.cleaner WHERE idcleaner = ?";
+//get cleaner profile data
+app.get("/cleanerView/:id", (req, res) => {
+  const cleanerID = req.params.id;
+  const q = `
+  SELECT 
+        u.\`First Name\`,
+        u.\`Last Name\`,
+        u.Email,
+        u.\`Phone Number\`,
+        u.City,
+        u.Street,
+        u.ZIP,
+        c.\`Bank Account #\`,
+        t.\`Cleaning Tools\`
+    FROM airbnbnetwork.cleaner c
+    LEFT JOIN airbnbnetwork.users u ON c.idcleaner = u.idusers
+    LEFT JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
+    WHERE c.idcleaner = ? `;
+
   db.query(q, [cleanerID], (err, data) => {
     if (err) {
       console.log(err);
       return res.json(err);
     }
+    //console.log(data);
     return res.json(data);
   });
 });
@@ -60,7 +77,6 @@ app.get("/jobBoard", (req, res) => {
       return res.status(500).json({ error: "Failed to fetch job data" });
     }
 
-    // 遍历数据，将字符串转为数字（如果需要）
     const formattedData = data.map((row) => ({
       ...row,
       paymentAmount: parseFloat(row["paymentAmount"]),
@@ -73,6 +89,7 @@ app.get("/jobBoard", (req, res) => {
 
 //Orders information for cleaner
 app.get("/cleanerorders/:id", (req, res) => {
+  const cleanerID = req.params.id;
   const q = `
     SELECT 
       o.idorders,
@@ -82,15 +99,42 @@ app.get("/cleanerorders/:id", (req, res) => {
       r.\`Service Description\` AS service_description,
       r.\`Service date\` AS service_date
     FROM orders o
-    LEFT JOIN requests r ON o.idrequest = r.idrequest;
-  `;
+    LEFT JOIN requests r ON o.idrequest = r.idrequest
+    WHERE o.idcleaner = ?`;
 
-  db.query(q, (err, data) => {
+  db.query(q, [cleanerID],(err, data) => {
     if (err) {
       console.error("Database query error:", err);
       return res.status(500).json({ error: "Failed to fetch orders data" });
     }
-    res.status(200).json(data); // 返回 orders 表的全部数据
+    //console.log(data);
+    res.status(200).json(data); 
+  });
+});
+
+//Bids information for cleaner
+app.get("/cleanerbids/:id", (req, res) => {
+  const cleanerID = req.params.id;
+  const q = `
+    SELECT
+      requests.idrequest,
+      requests.ownerid,
+      requests.propertyid,
+      CAST(requests.\`Payment Amount\` AS DECIMAL(10, 2)) AS paymentAmount,
+      requests.\`Payment Type\`,
+      requests.\`Service Description\`,
+      requests.\`Service date\`
+    FROM airbnbnetwork.requests requests
+    JOIN airbnbnetwork.bid bid ON requests.idrequest = bid.idreqest
+    WHERE bid.idcleaner = ?`;
+
+  db.query(q, [cleanerID],(err, data) => {
+    if (err) {
+      console.error("Database query error:", err);
+      return res.status(500).json({ error: "Failed to fetch orders data" });
+    }
+    console.log(data);
+    res.status(200).json(data); 
   });
 });
 
@@ -248,18 +292,6 @@ app.post("/register", (req, res) => {
   });
 });
 
-
-
-
-app.delete("/books/:id", (req, res) => {
-  const bookId = req.params.id;
-  const q = " DELETE FROM books WHERE id = ? ";
-
-  db.query(q, [bookId], (err, data) => {
-    if (err) return res.send(err);
-    return res.json(data);
-  });
-});
 
 app.put("/books/:id", (req, res) => {
   const bookId = req.params.id;
