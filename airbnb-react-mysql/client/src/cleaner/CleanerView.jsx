@@ -20,10 +20,6 @@ const CleanerView = () => {
     }
   };
 
-  const handleBidHistory = async () => {
-    setContent("No Bid history available.");
-  };
-
   const handleCheckJobBoard = async (e) => {
     e.preventDefault();
     try {
@@ -37,8 +33,12 @@ const CleanerView = () => {
               <thead>
                 <tr>
                   <th>Request ID</th>
-                  <th>Owner ID</th>
-                  <th>Property ID</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Property Name</th>
+                  <th>Street</th>
+                  <th>City</th>
+                  <th>Type</th>
                   <th>Payment Amount</th>
                   <th>Payment Type</th>
                   <th>Service Description</th>
@@ -47,23 +47,29 @@ const CleanerView = () => {
               </thead>
               <tbody>
                 {jobs.map((job) => (
-                    <tr key={job.idrequest}>
+                  <tr key={job.idrequest}>
                     <td>{job.idrequest}</td>
-                    <td>{job.ownerid}</td>
-                    <td>{job.propertyid}</td>
+                    <td>{job["First Name"] || "N/A"}</td>
+                    <td>{job["Last Name"] || "N/A"}</td>
+                    <td>{job["Property Name"] || "N/A"}</td>
+                    <td>{job.Street || "N/A"}</td>
+                    <td>{job.City || "N/A"}</td>
+                    <td>{job.Type || "N/A"}</td>
                     <td>
-                        {job["paymentAmount"] !== undefined && !isNaN(job["paymentAmount"]) ? (
-                       `$${parseFloat(job["paymentAmount"]).toFixed(2)}`
-                        ) : (
-                        "N/A"
-                        )}
+                      {job["Payment Amount"]
+                        ? `$${parseFloat(job["Payment Amount"]).toFixed(2)}`
+                        : "N/A"}
                     </td>
                     <td>{job["Payment Type"] || "N/A"}</td>
                     <td>{job["Service Description"] || "N/A"}</td>
-                    <td>{job["Service date"] ? new Date(job["Service date"]).toLocaleDateString() : "N/A"}</td>
-                    </tr>
+                    <td>
+                      {job["Service date"]
+                        ? new Date(job["Service date"]).toLocaleDateString()
+                        : "N/A"}
+                    </td>
+                  </tr>
                 ))}
-                </tbody>
+              </tbody>
             </table>
           ) : (
             <p>No job data available.</p>
@@ -90,8 +96,12 @@ const CleanerView = () => {
               <thead>
                 <tr>
                   <th>Request ID</th>
-                  <th>Owner ID</th>
-                  <th>Property ID</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Property Name</th>
+                  <th>Street</th>
+                  <th>City</th>
+                  <th>Type</th>
                   <th>Payment Amount</th>
                   <th>Payment Type</th>
                   <th>Service Description</th>
@@ -100,29 +110,36 @@ const CleanerView = () => {
               </thead>
               <tbody>
                 {jobs.map((job) => (
-                    <tr key={job.idrequest}>
+                  <tr key={job.idrequest}>
                     <td>{job.idrequest}</td>
-                    <td>{job.ownerid}</td>
-                    <td>{job.propertyid}</td>
+                    <td>{job["First Name"] || "N/A"}</td>
+                    <td>{job["Last Name"] || "N/A"}</td>
+                    <td>{job["Property Name"] || "N/A"}</td>
+                    <td>{job.Street || "N/A"}</td>
+                    <td>{job.City || "N/A"}</td>
+                    <td>{job.Type || "N/A"}</td>
                     <td>
-                        {job["paymentAmount"] !== undefined && !isNaN(job["paymentAmount"]) ? (
-                        `$${parseFloat(job["paymentAmount"]).toFixed(2)}`
-                        ) : (
-                        "N/A"
-                        )}
+                      {job["Payment Amount"]
+                        ? `$${parseFloat(job["Payment Amount"]).toFixed(2)}`
+                        : "N/A"}
                     </td>
                     <td>{job["Payment Type"] || "N/A"}</td>
                     <td>{job["Service Description"] || "N/A"}</td>
-                    <td>{job["Service date"] ? new Date(job["Service date"]).toLocaleDateString() : "N/A"}</td>
-                    </tr>
+                    <td>
+                      {job["Service date"]
+                        ? new Date(job["Service date"]).toLocaleDateString()
+                        : "N/A"}
+                    </td>
+                  </tr>
                 ))}
-                </tbody>
+              </tbody>
             </table>
           ) : (
             <p>No job data available.</p>
           )}
         </div>
       );
+      
     } catch (err) {
       console.error(err);
       setError(true);
@@ -143,26 +160,30 @@ const CleanerView = () => {
             <thead>
               <tr>
                 <th>Order ID</th>
-                <th>Request ID</th>
-                <th>Cleaner ID</th>
-                <th>Owner ID</th>
+                <th>cleaning_date</th>
+                <th>Property Name</th>
+                <th>Stree</th>
+                <th>City</th>
+                <th>CheckInTime</th>
+                <th>Payment Amount</th>
+                <th>Payment Type</th>
                 <th>Service Description</th>
-                <th>Service Date</th>
+                <th>Owner Name</th>
               </tr>
             </thead>
             <tbody>
               {orders.map((order) => (
                 <tr key={order.idorders}>
                   <td>{order.idorders}</td>
-                  <td>{order.idrequest}</td>
-                  <td>{order.idcleaner}</td>
-                  <td>{order.idowner}</td>
-                  <td>{order.service_description || "N/A"}</td>
-                  <td>
-                    {order.service_date
-                      ? new Date(order.service_date).toLocaleDateString()
-                      : "N/A"}
-                  </td>
+                  <td>{order['Service date'] ? new Date(order['Service date']).toLocaleDateString() : "N/A"}</td>
+                  <td>{order['Property Name'] || "N/A"}</td>
+                  <td>{order.Street || "N/A"}</td>
+                  <td>{order.City || "N/A"}</td>
+                  <td>{order.CheckInTime || "N/A"}</td>
+                  <td>{order['Payment Amount'] ? `$${order['Payment Amount']}` : "N/A"}</td>
+                  <td>{order['Payment Type'] || "N/A"}</td>
+                  <td>{order['Service Description'] || "N/A"}</td>
+                  <td>{order['First Name']} {order['Last Name']}</td>
                 </tr>
               ))}
             </tbody>

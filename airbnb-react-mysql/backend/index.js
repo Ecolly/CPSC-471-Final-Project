@@ -62,15 +62,26 @@ app.get("/cleanerView/:id", (req, res) => {
 app.get("/jobBoard", (req, res) => {
   const q = `
     SELECT 
-      idrequest,
-      ownerid,
-      propertyid,
-      CAST(\`Payment Amount\` AS DECIMAL(10, 2)) AS paymentAmount,
-      \`Payment Type\`,
-      \`Service Description\`,
-      \`Service date\`
-    FROM airbnbnetwork.requests
-  `;
+        r.idrequest,
+        u.\`First Name\`,
+        u.\`Last Name\`,
+        p.\`Property Name\`,
+        p.Street,
+        p.City,
+        p.Type,
+        r.\`Service date\`,
+        r.\`Payment Amount\`,
+        r.\`Payment Type\`,
+        r.\`Service Description\`,
+        r.create_time
+      FROM requests r
+      JOIN bnbowner bo ON r.ownerid = bo.idbnbowner
+      JOIN users u ON bo.idbnbowner = u.idusers
+      JOIN property p ON r.propertyid = p.idproperty
+      LEFT JOIN bid b ON r.idrequest = b.idreqest
+      WHERE r.idrequest NOT IN (SELECT idrequest FROM orders) 
+      GROUP BY r.idrequest
+      ORDER BY r.\`Service date\``;
   db.query(q, (err, data) => {
     if (err) {
       console.error("Database query error:", err);
@@ -91,23 +102,34 @@ app.get("/jobBoard", (req, res) => {
 app.get("/cleanerorders/:id", (req, res) => {
   const cleanerID = req.params.id;
   const q = `
-    SELECT 
-      o.idorders,
-      o.idrequest,
-      o.idcleaner,
-      o.idowner,
-      r.\`Service Description\` AS service_description,
-      r.\`Service date\` AS service_date
+        SELECT 
+        o.idorders,
+        r.\`Service date\`,
+        p.\`Property Name\`,
+        p.Street,
+        p.City,
+        p.CheckInTime,
+        r.\`Payment Amount\`,
+        r.\`Payment Type\`,
+        r.\`Service Description\`,
+        u_owner.\`First Name\`,
+        u_owner.\`Last Name\` 
     FROM orders o
-    LEFT JOIN requests r ON o.idrequest = r.idrequest
-    WHERE o.idcleaner = ?`;
+    JOIN requests r ON o.idrequest = r.idrequest
+    JOIN property p ON r.propertyid = p.idproperty
+    JOIN bnbowner b ON r.ownerid = b.idbnbowner
+    JOIN users u_owner ON b.idbnbowner = u_owner.idusers
+    JOIN cleaner c ON o.idcleaner = c.idcleaner
+    JOIN users u_cleaner ON c.idcleaner = u_cleaner.idusers
+    WHERE o.idcleaner = ?
+    ORDER BY r.\`Service date\``;
 
   db.query(q, [cleanerID],(err, data) => {
     if (err) {
       console.error("Database query error:", err);
       return res.status(500).json({ error: "Failed to fetch orders data" });
     }
-    //console.log(data);
+    console.log(data);
     res.status(200).json(data); 
   });
 });
@@ -116,17 +138,27 @@ app.get("/cleanerorders/:id", (req, res) => {
 app.get("/cleanerbids/:id", (req, res) => {
   const cleanerID = req.params.id;
   const q = `
-    SELECT
-      requests.idrequest,
-      requests.ownerid,
-      requests.propertyid,
-      CAST(requests.\`Payment Amount\` AS DECIMAL(10, 2)) AS paymentAmount,
-      requests.\`Payment Type\`,
-      requests.\`Service Description\`,
-      requests.\`Service date\`
-    FROM airbnbnetwork.requests requests
-    JOIN airbnbnetwork.bid bid ON requests.idrequest = bid.idreqest
-    WHERE bid.idcleaner = ?`;
+      SELECT 
+      r.idrequest,
+      u.\`First Name\`,
+      u.\`Last Name\`,
+      p.\`Property Name\`,
+      p.Street,
+      p.City,
+      p.Type,
+      r.\`Service date\`,
+      r.\`Payment Amount\`,
+      r.\`Payment Type\`,
+      r.\`Service Description\`,
+      r.create_time
+    FROM requests r
+    JOIN bnbowner bo ON r.ownerid = bo.idbnbowner
+    JOIN users u ON bo.idbnbowner = u.idusers
+    JOIN property p ON r.propertyid = p.idproperty
+    LEFT JOIN bid b ON r.idrequest = b.idreqest
+    WHERE b.idcleaner = ?
+    GROUP BY r.idrequest
+    ORDER BY r.\`Service date\``;
 
   db.query(q, [cleanerID],(err, data) => {
     if (err) {
