@@ -1,24 +1,65 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 
 const CleanerView = () => {
   const [content, setContent] = useState("Welcome! Click a button to see content here.");
   const [error, setError] = useState(false);
   const { id } = useParams();
+  const [showUpdateForm, setShowUpdateForm] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    firstName: "",
+    middleInitial: "",
+    lastName: "",
+    email: "",
+    password: "",
+    city: "",
+    street: "",
+    zip: "",
+    phoneNumber: "",
+    gender: "",
+    dateOfBirth: "",
+  });
 
-  const handleUpdateProfile = async (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: value };
+      return updated;
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:8800/cleanerView/${id}`);
-      setContent("Cleaner updated successfully!");
+      const res = await axios.put(`http://localhost:8800/updateCleaner/${id}`, formData);
+      setContent(
+        <div>
+          <p style={{ color: "green" }}>
+            {res.data.message || "Profile updated successfully!"}
+          </p>
+        </div>
+      );
+      setShowUpdateForm(false); 
     } catch (err) {
       console.error(err);
-      setError(true);
-      setContent("Something went wrong while updating the cleaner.");
+      setContent(
+        <div>
+          <p style={{ color: "red" }}>
+            Something went wrong while updating the profile.
+          </p>
+        </div>
+      );
     }
   };
+
+  const handleUpdateProfile = () => {
+    setContent("");
+    setShowUpdateForm(true); 
+  };
+
 
   const handleBidding = async (idrequest) => {
     try {
@@ -36,9 +77,21 @@ const CleanerView = () => {
     }
   };
   
+  // const handleUpdateCleanerTools = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     await axios.put(`http://localhost:8800/cleanerView/${id}`);
+  //     setContent("Cleaner Tools updated successfully!");
+  //   } catch (err) {
+  //     console.error(err);
+  //     setError(true);
+  //     setContent("Something went wrong while updating the cleaner tools.");
+  //   }
+  // };
 
   const handleCheckJobBoard = async (e) => {
     e.preventDefault();
+    setShowUpdateForm(false);
     try {
       const res = await axios.get(`http://localhost:8800/jobBoard/${id}`);
       const jobs = res.data;
@@ -107,6 +160,7 @@ const CleanerView = () => {
   
   const handleCleanerBids = async (e) => {
     e.preventDefault();
+    setShowUpdateForm(false);
     try {
       const res = await axios.get(`http://localhost:8800/cleanerBids/${id}`); 
       const jobs = res.data;
@@ -170,6 +224,7 @@ const CleanerView = () => {
   };
 
   const handleOrderHistory = async () => {
+    setShowUpdateForm(false);
     try {
       const res = await axios.get(`http://localhost:8800/cleanerorders/${id}`);
       const orders = res.data;
@@ -224,6 +279,7 @@ const CleanerView = () => {
 
   const handleShowCleaner = async (e) => {
     e.preventDefault();
+    setShowUpdateForm(false);
     try {
       const res = await axios.get(`http://localhost:8800/cleanerView/${id}`); 
       const cleaner = res.data[0]; 
@@ -269,6 +325,9 @@ const CleanerView = () => {
                 <tr>
                   <th>Cleaning Tools</th>
                   <td>{cleaner['Cleaning Tools']}</td>
+                    {/* <button onClick={() => handleUpdateCleanerTools}
+                      className="button">UpdateCleanerTools
+                    </button> */}
                 </tr>
               </tbody>
             </table>
@@ -308,6 +367,127 @@ const CleanerView = () => {
         </nav>
       </header>
       <main className="content">
+        {showUpdateForm && (
+          <div className="form">
+            <h1>Update Your Profile</h1>
+            <form onSubmit={handleSubmit}>
+              <input
+                type="text"
+                placeholder="First Name"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Middle Initial"
+                name="middleInitial"
+                value={formData.middleInitial}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                placeholder="Last Name"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="text"
+                placeholder="City"
+                name="city"
+                value={formData.city}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                placeholder="Street"
+                name="street"
+                value={formData.street}
+                onChange={handleChange}
+              />
+              <input
+                type="text"
+                placeholder="ZIP"
+                name="zip"
+                value={formData.zip}
+                onChange={handleChange}
+              />
+              <input
+                type="tel"
+                placeholder="Phone Number"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                required
+              />
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Gender</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+                <option value="Other">Other</option>
+              </select>
+              <input
+                type="date"
+                name="dateOfBirth"
+                placeholder="Phone Number"
+                value={formData.dateOfBirth}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="text"
+                name="bankAccount"
+                placeholder="Bank Account #"
+                value={formData.bankAccount}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="text"
+                name="cleaningTools"
+                placeholder="Cleaning Tools #"
+                value={formData.cleaningTools}
+                onChange={handleChange}
+                required
+              />
+              {/* <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Role</option>
+                <option value="cleaner">Cleaner</option>
+                <option value="owner">Owner</option>
+              </select> */}
+              <button type="submit">Submit</button>
+            </form>
+          </div>
+        )}
         {typeof content === "string" ? <p>{content}</p> : content}
       </main>
     </div>

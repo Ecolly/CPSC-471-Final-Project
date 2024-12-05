@@ -44,6 +44,74 @@ app.get("/", (req, res) => {
   });
 });
 
+//update cleaner profile
+app.put("/updateCleaner/:id", (req, res) => {
+  const cleanerID = req.params.id;
+  const {
+    firstName,
+    middleInitial,
+    lastName,
+    email,
+    password,
+    city,
+    street,
+    zip,
+    phoneNumber,
+    gender,
+    dateOfBirth,
+    bankAccount,
+    cleaningTools,
+  } = req.body;
+
+  const q = `
+    UPDATE airbnbnetwork.users u
+    JOIN airbnbnetwork.cleaner c ON u.idusers = c.idcleaner
+    JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
+    SET
+      u.\`First Name\` = ?,
+      u.\`Middle Initial\` = ?,
+      u.\`Last Name\` = ?,
+      u.Email = ?,
+      u.Password = ?,
+      u.City = ?,
+      u.Street = ?,
+      u.ZIP = ?,
+      u.\`Phone Number\` = ?,
+      u.Gender = ?,
+      u.\`Date of Birth\` = ?,
+      c.\`Bank Account #\` = ?,
+      t.\`Cleaning Tools\` = ?
+    WHERE u.idusers = ?;
+  `;
+
+  const values = [
+    firstName,
+    middleInitial,
+    lastName,
+    email,
+    password,
+    city,
+    street,
+    zip,
+    phoneNumber,
+    gender,
+    dateOfBirth,
+    bankAccount,
+    cleaningTools,
+    cleanerID
+  ];
+
+  db.query(q, values, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Something went wrong while updating the profile." });
+    }
+    return res.json({ message: "Profile updated successfully!", data });
+  });
+});
+
+
+
 //get cleaner profile data
 app.get("/cleanerView/:id", (req, res) => {
   const cleanerID = req.params.id;
@@ -161,7 +229,7 @@ app.get("/cleanerorders/:id", (req, res) => {
       console.error("Database query error:", err);
       return res.status(500).json({ error: "Failed to fetch orders data" });
     }
-    console.log(data);
+    //console.log(data);
     res.status(200).json(data); 
   });
 });
@@ -197,7 +265,7 @@ app.get("/cleanerbids/:id", (req, res) => {
       console.error("Database query error:", err);
       return res.status(500).json({ error: "Failed to fetch orders data" });
     }
-    console.log(data);
+    //console.log(data);
     res.status(200).json(data); 
   });
 });
