@@ -8,6 +8,7 @@ const OwnerView = () => {
   const [error, setError] = useState(false);
   const { id } = useParams();
 
+  //add button to add an owner
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
@@ -20,11 +21,13 @@ const OwnerView = () => {
     }
   };
 
-  const handleBidHistory = async () => {
+  // see requests they posted on a property > click see bids > show all the bids by cleaner
+  const handleRequests = async () => {
     setContent("No Bid history available.");
   };
 
-  const handleCheckJobBoard = async (e) => {
+  //
+  const handleViewProperties = async (e) => { //see the properties they have listed > edit them if want
     e.preventDefault();
     try {
       const res = await axios.get(`http://localhost:8800/jobBoard`); 
@@ -127,6 +130,7 @@ const OwnerView = () => {
   };
   
 
+  //show the inital page
   const handleShowOwner = async (e) => {
     e.preventDefault();
     try {
@@ -139,21 +143,41 @@ const OwnerView = () => {
             <table>
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Bank Account</th>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Middle Initial</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Password</th>
+                <th>City</th>
+                <th>Street</th>
+                <th>ZIP</th>
+                <th>Phone Number</th>
+                <th>Gender</th>
+                <th>Date of Birth</th>
                 </tr>
               </thead>
               <tbody>
-                {owners.map((owners) => (
+                {owners.map((owner) => (
                   <tr key={owners.idbnbowner}>
-                    <td>{owners.idbnbowner}</td>
-                    <td>{owners["Bank Account #"]}</td>
+                    <td>{owner.idusers}</td>
+                    <td>{owner["First Name"]}</td>
+                    <td>{owner["Middle Initial"] || "-"}</td>
+                    <td>{owner["Last Name"]}</td>
+                    <td>{owner.Email}</td>
+                    <td>{owner.Password}</td>
+                    <td>{owner.City || "-"}</td>
+                    <td>{owner.Street || "-"}</td>
+                    <td>{owner.ZIP || "-"}</td>
+                    <td>{owner["Phone Number"]}</td>
+                    <td>{owner.Gender}</td>
+                    <td>{new Date(owner["Date of Birth"]).toLocaleDateString()}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           ) : (
-            <p>No cleaner data available.</p>
+            <p>No Owner data available.</p>
           )}
         </div>
       );
@@ -176,10 +200,10 @@ const OwnerView = () => {
           <button className="nav-button" onClick={handleUpdateProfile}>
             Update Profile
           </button>
-          <button className="nav-button" onClick={handleCheckJobBoard}>
+          <button className="nav-button" onClick={handleViewProperties}>
             View Property
           </button>
-          <button className="nav-button" onClick={handleBidHistory}>
+          <button className="nav-button" onClick={handleRequests}>
             View Requests
           </button>
           <button className="nav-button" onClick={handleOrderHistory}>

@@ -17,7 +17,22 @@ const db = mysql.createConnection({
 // app.get("/", (req, res) => {
 //   res.json("hello");
 // });
- 
+
+////////////////Owner Gets////////////////////////////////////
+app.get("/ownerView/:id", (req, res) => {
+  const userId = req.params.id; 
+  const query = "SELECT * FROM users WHERE idusers = ?"; // Query to fetch all data from 'users' table
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error("Error fetching data:", err);
+      res.status(500).json({ error: "Something went wrong while fetching the data." });
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+////////////////////////////////////////////////////////////
 app.get("/", (req, res) => {
   const q = "SELECT * FROM users";
   db.query(q, (err, data) => {
@@ -29,6 +44,7 @@ app.get("/", (req, res) => {
   });
 });
 
+<<<<<<< Updated upstream
 //get cleaner profile data
 app.get("/cleanerView/:id", (req, res) => {
   const cleanerID = req.params.id;
@@ -48,6 +64,13 @@ app.get("/cleanerView/:id", (req, res) => {
     LEFT JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
     WHERE c.idcleaner = ? `;
 
+=======
+////////////////////////Cleaner gets/////////////////////////////////////
+
+app.get("/cleanerView/68", (req, res) => {
+  const cleanerID = 68;
+  const q = "SELECT * FROM airbnbnetwork.cleaner WHERE idcleaner = ?";
+>>>>>>> Stashed changes
   db.query(q, [cleanerID], (err, data) => {
     if (err) {
       console.log(err);
@@ -171,7 +194,7 @@ app.get("/cleanerbids/:id", (req, res) => {
 });
 
 
-app.post("/cleanerView68", (req, res) => {
+app.post("/cleanerView:id", (req, res) => {
   const q = "INSERT INTO cleaner (id, bankAccount) VALUES (?, ?)";
   const values = [req.body.id, req.body.bankAccount];
   db.query(q, values, (err, data) => {
@@ -182,6 +205,8 @@ app.post("/cleanerView68", (req, res) => {
   });
 });
 
+
+////////////////////////////general pages//////////////////////////////
 app.post("/login", (req, res) => {
   const {email, password} = req.body;
   console.log("Login attempt:", { email, password });
