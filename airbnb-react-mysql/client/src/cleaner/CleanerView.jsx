@@ -20,10 +20,27 @@ const CleanerView = () => {
     }
   };
 
+  const handleBidding = async (idrequest) => {
+    try {
+      const cleanerid = id;
+      await axios.post(`http://localhost:8800/cleanerBids/bidding`, { idrequest, cleanerid });
+      setContent("Bid submitted successfully!");
+      setTimeout(() => {
+        handleCheckJobBoard(new Event('click')); 
+      }, 1000);
+
+    } catch (err) {
+      console.error(err);
+      setError(true);
+      setContent("Something went wrong while submitting the bid.");
+    }
+  };
+  
+
   const handleCheckJobBoard = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.get(`http://localhost:8800/jobBoard`); 
+      const res = await axios.get(`http://localhost:8800/jobBoard/${id}`);
       const jobs = res.data;
       setContent(
         <div>
@@ -67,6 +84,11 @@ const CleanerView = () => {
                         ? new Date(job["Service date"]).toLocaleDateString()
                         : "N/A"}
                     </td>
+                    <td> 
+                    <button onClick={() => handleBidding(job.idrequest)}
+                      className="button">Bid
+                    </button>
+                  </td>
                   </tr>
                 ))}
               </tbody>

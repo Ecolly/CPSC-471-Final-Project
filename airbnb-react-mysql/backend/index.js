@@ -74,7 +74,8 @@ app.get("/cleanerView/:id", (req, res) => {
 });
 
 //Job Board information
-app.get("/jobBoard", (req, res) => {
+app.get("/jobBoard/:id", (req, res) => {
+  const userId = req.params.id;
   const q = `
     SELECT 
         r.idrequest,
@@ -109,6 +110,22 @@ app.get("/jobBoard", (req, res) => {
     }));
 
     res.json(formattedData);
+  });
+});
+
+//Job Board bidding
+app.post('/cleanerBids/bidding', (req, res) => {
+  const { idrequest, cleanerid } = req.body;
+  if (!idrequest || !cleanerid) {
+    return res.status(400).json({ message: 'idrequest and cleanerid are required' });
+  }
+  const q = "INSERT INTO bid (idreqest, idcleaner) VALUES (?, ?)";
+  db.query(q, [idrequest, cleanerid], (err, data) => {
+    if (err) {
+      console.log(err);
+      return res.json(err);
+    }
+    return res.json(data);
   });
 });
 
