@@ -44,7 +44,6 @@ app.get("/", (req, res) => {
   });
 });
 
-<<<<<<< Updated upstream
 //get cleaner profile data
 app.get("/cleanerView/:id", (req, res) => {
   const cleanerID = req.params.id;
@@ -64,13 +63,6 @@ app.get("/cleanerView/:id", (req, res) => {
     LEFT JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
     WHERE c.idcleaner = ? `;
 
-=======
-////////////////////////Cleaner gets/////////////////////////////////////
-
-app.get("/cleanerView/68", (req, res) => {
-  const cleanerID = 68;
-  const q = "SELECT * FROM airbnbnetwork.cleaner WHERE idcleaner = ?";
->>>>>>> Stashed changes
   db.query(q, [cleanerID], (err, data) => {
     if (err) {
       console.log(err);
