@@ -77,17 +77,56 @@ const CleanerView = () => {
     }
   };
   
-  // const handleUpdateCleanerTools = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     await axios.put(`http://localhost:8800/cleanerView/${id}`);
-  //     setContent("Cleaner Tools updated successfully!");
-  //   } catch (err) {
-  //     console.error(err);
-  //     setError(true);
-  //     setContent("Something went wrong while updating the cleaner tools.");
-  //   }
-  // };
+  const handleTransactionHistory = async () => {
+    setShowUpdateForm(false);
+    try {
+      const res = await axios.get(`http://localhost:8800/cleanerTransactions/${id}`);
+      const transactions = res.data;
+      setContent(
+        <div>
+        <h2>Transaction History</h2>
+        {transactions.length > 0 ? (
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>cleaning_date</th>
+                <th>Property Name</th>
+                <th>Stree</th>
+                <th>City</th>
+                <th>Payment Amount</th>
+                <th>Payment Type</th>
+                <th>Service Description</th>
+                <th>Owner Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transactions.map((order) => (
+                <tr key={order.idorders}>
+                  <td>{order.idorders}</td>
+                  <td>{order['Service date'] ? new Date(order['Service date']).toLocaleDateString() : "N/A"}</td>
+                  <td>{order['Property Name'] || "N/A"}</td>
+                  <td>{order.Street || "N/A"}</td>
+                  <td>{order.City || "N/A"}</td>
+                  <td>{order['Payment Amount'] ? `$${order['Payment Amount']}` : "N/A"}</td>
+                  <td>{order['Payment Type'] || "N/A"}</td>
+                  <td>{order['Service Description'] || "N/A"}</td>
+                  <td>{order['First Name']} {order['Last Name']}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>No Transaction History available.</p>
+        )}
+      </div>
+  );
+    } catch (err) {
+      console.error("Failed to fetch Transaction History:", err);
+      setContent("Something went wrong while fetching the Transaction History.");
+    }
+  };
+
 
   const handleCheckJobBoard = async (e) => {
     e.preventDefault();
@@ -166,7 +205,7 @@ const CleanerView = () => {
       const jobs = res.data;
       setContent(
         <div>
-          <h3>Job Board</h3>
+          <h3>Bid History</h3>
           {jobs.length > 0 ? (
             <table>
               <thead>
@@ -363,6 +402,9 @@ const CleanerView = () => {
           </button>
           <button className="nav-button" onClick={handleOrderHistory}>
             Order History
+          </button>
+          <button className="nav-button" onClick={handleTransactionHistory}>
+            Transaction History
           </button>
         </nav>
       </header>

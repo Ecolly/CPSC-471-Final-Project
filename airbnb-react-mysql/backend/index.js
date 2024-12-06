@@ -234,6 +234,42 @@ app.get("/cleanerorders/:id", (req, res) => {
   });
 });
 
+//Transaction information for cleaner
+app.get("/cleanertransactions/:id", (req, res) => {
+  const cleanerID = req.params.id;
+  const q = `
+        SELECT 
+        o.idorders,
+        r.\`Service date\`,
+        p.\`Property Name\`,
+        p.Street,
+        p.City,
+        r.\`Payment Amount\`,
+        r.\`Payment Type\`,
+        r.\`Service Description\`,
+        u_owner.\`First Name\`,
+        u_owner.\`Last Name\` 
+    FROM orders o
+    JOIN transaction t ON o.idorders = t.idorder
+    JOIN requests r ON o.idrequest = r.idrequest
+    JOIN property p ON r.propertyid = p.idproperty
+    JOIN bnbowner b ON r.ownerid = b.idbnbowner
+    JOIN users u_owner ON b.idbnbowner = u_owner.idusers
+    JOIN cleaner c ON o.idcleaner = c.idcleaner
+    JOIN users u_cleaner ON c.idcleaner = u_cleaner.idusers
+    WHERE o.idcleaner = ?
+    ORDER BY r.\`Service date\``;
+
+  db.query(q, [cleanerID],(err, data) => {
+    if (err) {
+      console.error("Database query error:", err);
+      return res.status(500).json({ error: "Failed to fetch orders data" });
+    }
+    //console.log(data);
+    res.status(200).json(data); 
+  });
+});
+
 //Bids information for cleaner
 app.get("/cleanerbids/:id", (req, res) => {
   const cleanerID = req.params.id;
