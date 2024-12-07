@@ -270,6 +270,43 @@ app.get("/cleanertransactions/:id", (req, res) => {
   });
 });
 
+//Owner Rating in cleanerview
+app.post('/ownerRating', (req, res) => {
+  const { behavior, professionalism, overallScore, comment, idorders} = req.body;
+  if (!behavior || !professionalism || !overallScore || !idorders) {
+    return res.status(400).json({ error: 'Missing required fields.' });
+  }
+
+    const q = `
+    INSERT INTO airbnbnetwork.owner_rating (
+      idorder,
+      idowner,
+      Comment,
+      Behavior,
+      Professionalism,
+      \`Overall Score\`
+    )
+    VALUES (
+      ?, 
+      (SELECT idowner FROM airbnbnetwork.orders WHERE idorders = ?), 
+      ?, 
+      ?, 
+      ?, 
+      ?
+    )
+  `;
+
+  const values = [idorders, idorders, comment || '', behavior, professionalism, overallScore];
+
+  db.query(q, values, (err, result) => {
+    if (err) {
+      console.error('Failed to insert owner rating:', err);
+      return res.status(500).json({ error: 'Something went wrong while submitting the rating.' });
+    }
+    res.json({ message: 'Rating submitted successfully!' });
+  });
+});
+
 //Bids information for cleaner
 app.get("/cleanerbids/:id", (req, res) => {
   const cleanerID = req.params.id;

@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useParams, useNavigate } from "react-router-dom";
-
+import { useParams } from "react-router-dom";
 
 const CleanerView = () => {
   const [content, setContent] = useState("Welcome! Click a button to see content here.");
   const [error, setError] = useState(false);
   const { id } = useParams();
   const [showUpdateForm, setShowUpdateForm] = useState(false);
-  
+  const [showRatingForm, setShowRatingForm] = useState(false);
+  const [ratingOrderId, setRatingOrderId] = useState(null);
+  const [transactions, setTransactions] = useState([]);
+
   const [formData, setFormData] = useState({
     firstName: "",
     middleInitial: "",
@@ -21,14 +23,31 @@ const CleanerView = () => {
     phoneNumber: "",
     gender: "",
     dateOfBirth: "",
+    bankAccount: "",
+    cleaningTools: ""
+  });
+
+  const [ratingData, setRatingData] = useState({
+    behavior: "",
+    professionalism: "",
+    overallScore: "",
+    comment: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => {
-      const updated = { ...prev, [name]: value };
-      return updated;
-    });
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleRatingChange = (e) => {
+    const { name, value } = e.target;
+    setRatingData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -42,7 +61,7 @@ const CleanerView = () => {
           </p>
         </div>
       );
-      setShowUpdateForm(false); 
+      setShowUpdateForm(false);
     } catch (err) {
       console.error(err);
       setContent(
@@ -57,9 +76,8 @@ const CleanerView = () => {
 
   const handleUpdateProfile = () => {
     setContent("");
-    setShowUpdateForm(true); 
+    setShowUpdateForm(true);
   };
-
 
   const handleBidding = async (idrequest) => {
     try {
@@ -69,71 +87,77 @@ const CleanerView = () => {
       setTimeout(() => {
         handleCheckJobBoard(new Event('click')); 
       }, 1000);
-
     } catch (err) {
       console.error(err);
       setError(true);
       setContent("Something went wrong while submitting the bid.");
     }
   };
-  
-  const handleTransactionHistory = async () => {
-    setShowUpdateForm(false);
+
+  const handleOwnerRating = (idorders) => {
+    setShowRatingForm(true);
+    setRatingOrderId(idorders);
+  };
+
+  const handleRatingSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const res = await axios.get(`http://localhost:8800/cleanerTransactions/${id}`);
-      const transactions = res.data;
+      await axios.post(`http://localhost:8800/ownerRating`, {
+        ...ratingData,
+        idorders: ratingOrderId,
+      });
       setContent(
         <div>
-        <h2>Transaction History</h2>
-        {transactions.length > 0 ? (
-          <table>
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>cleaning_date</th>
-                <th>Property Name</th>
-                <th>Stree</th>
-                <th>City</th>
-                <th>Payment Amount</th>
-                <th>Payment Type</th>
-                <th>Service Description</th>
-                <th>Owner Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((order) => (
-                <tr key={order.idorders}>
-                  <td>{order.idorders}</td>
-                  <td>{order['Service date'] ? new Date(order['Service date']).toLocaleDateString() : "N/A"}</td>
-                  <td>{order['Property Name'] || "N/A"}</td>
-                  <td>{order.Street || "N/A"}</td>
-                  <td>{order.City || "N/A"}</td>
-                  <td>{order['Payment Amount'] ? `$${order['Payment Amount']}` : "N/A"}</td>
-                  <td>{order['Payment Type'] || "N/A"}</td>
-                  <td>{order['Service Description'] || "N/A"}</td>
-                  <td>{order['First Name']} {order['Last Name']}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No Transaction History available.</p>
-        )}
-      </div>
-  );
+          <p style={{ color: "green" }}>Rating submitted successfully!</p>
+        </div>
+      );
+      setTimeout(() => {
+        setShowRatingForm(false);
+        setRatingOrderId(null);
+        showTransactionHistory(); //Show Transaction History after rating
+      }, 1000);
+    } catch (err) {
+      console.error("Error submitting rating:", err);
+      setContent(
+        <div>
+          <p style={{ color: "red" }}>Something went wrong while submitting the rating.</p>
+        </div>
+      );
+    } finally {
+      setRatingData({
+        behavior: "",
+        professionalism: "",
+        overallScore: "",
+        comment: "",
+      });
+    }
+  };
+
+  const handleTransactionHistory = async () => {
+    setShowUpdateForm(false);
+    setShowRatingForm(false);
+    try {
+      const res = await axios.get(`http://localhost:8800/cleanerTransactions/${id}`);
+      setTransactions(res.data);
+      setContent("");
     } catch (err) {
       console.error("Failed to fetch Transaction History:", err);
       setContent("Something went wrong while fetching the Transaction History.");
     }
   };
 
+  const showTransactionHistory = () => {
+    setContent("");
+  };
 
   const handleCheckJobBoard = async (e) => {
     e.preventDefault();
     setShowUpdateForm(false);
+    setShowRatingForm(false);
     try {
       const res = await axios.get(`http://localhost:8800/jobBoard/${id}`);
       const jobs = res.data;
+      setTransactions([]); // 清空Transaction以隐藏
       setContent(
         <div>
           <h3>Job Board</h3>
@@ -152,6 +176,7 @@ const CleanerView = () => {
                   <th>Payment Type</th>
                   <th>Service Description</th>
                   <th>Service Date</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -176,11 +201,11 @@ const CleanerView = () => {
                         ? new Date(job["Service date"]).toLocaleDateString()
                         : "N/A"}
                     </td>
-                    <td> 
-                    <button onClick={() => handleBidding(job.idrequest)}
-                      className="button">Bid
-                    </button>
-                  </td>
+                    <td>
+                      <button onClick={() => handleBidding(job.idrequest)}
+                        className="button">Bid
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -196,13 +221,15 @@ const CleanerView = () => {
       setContent("Something went wrong while fetching the job data.");
     }
   };
-  
+
   const handleCleanerBids = async (e) => {
     e.preventDefault();
     setShowUpdateForm(false);
+    setShowRatingForm(false);
     try {
-      const res = await axios.get(`http://localhost:8800/cleanerBids/${id}`); 
+      const res = await axios.get(`http://localhost:8800/cleanerBids/${id}`);
       const jobs = res.data;
+      setTransactions([]);
       setContent(
         <div>
           <h3>Bid History</h3>
@@ -254,7 +281,7 @@ const CleanerView = () => {
           )}
         </div>
       );
-      
+
     } catch (err) {
       console.error(err);
       setError(true);
@@ -264,65 +291,66 @@ const CleanerView = () => {
 
   const handleOrderHistory = async () => {
     setShowUpdateForm(false);
+    setShowRatingForm(false);
     try {
       const res = await axios.get(`http://localhost:8800/cleanerorders/${id}`);
       const orders = res.data;
-  
+      setTransactions([]);
       setContent(
         <div>
-        <h2>Orders</h2>
-        {orders.length > 0 ? (
-          <table>
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>cleaning_date</th>
-                <th>Property Name</th>
-                <th>Stree</th>
-                <th>City</th>
-                <th>CheckInTime</th>
-                <th>Payment Amount</th>
-                <th>Payment Type</th>
-                <th>Service Description</th>
-                <th>Owner Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr key={order.idorders}>
-                  <td>{order.idorders}</td>
-                  <td>{order['Service date'] ? new Date(order['Service date']).toLocaleDateString() : "N/A"}</td>
-                  <td>{order['Property Name'] || "N/A"}</td>
-                  <td>{order.Street || "N/A"}</td>
-                  <td>{order.City || "N/A"}</td>
-                  <td>{order.CheckInTime || "N/A"}</td>
-                  <td>{order['Payment Amount'] ? `$${order['Payment Amount']}` : "N/A"}</td>
-                  <td>{order['Payment Type'] || "N/A"}</td>
-                  <td>{order['Service Description'] || "N/A"}</td>
-                  <td>{order['First Name']} {order['Last Name']}</td>
+          <h2>Orders</h2>
+          {orders.length > 0 ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>cleaning_date</th>
+                  <th>Property Name</th>
+                  <th>Stree</th>
+                  <th>City</th>
+                  <th>CheckInTime</th>
+                  <th>Payment Amount</th>
+                  <th>Payment Type</th>
+                  <th>Service Description</th>
+                  <th>Owner Name</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No orders available.</p>
-        )}
-      </div>
-  );
+              </thead>
+              <tbody>
+                {orders.map((order) => (
+                  <tr key={order.idorders}>
+                    <td>{order.idorders}</td>
+                    <td>{order['Service date'] ? new Date(order['Service date']).toLocaleDateString() : "N/A"}</td>
+                    <td>{order['Property Name'] || "N/A"}</td>
+                    <td>{order.Street || "N/A"}</td>
+                    <td>{order.City || "N/A"}</td>
+                    <td>{order.CheckInTime || "N/A"}</td>
+                    <td>{order['Payment Amount'] ? `$${order['Payment Amount']}` : "N/A"}</td>
+                    <td>{order['Payment Type'] || "N/A"}</td>
+                    <td>{order['Service Description'] || "N/A"}</td>
+                    <td>{order['First Name']} {order['Last Name']}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>No orders available.</p>
+          )}
+        </div>
+      );
     } catch (err) {
       console.error("Failed to fetch orders:", err);
       setContent("Something went wrong while fetching the orders.");
     }
   };
-  
 
   const handleShowCleaner = async (e) => {
     e.preventDefault();
     setShowUpdateForm(false);
+    setShowRatingForm(false);
     try {
-      const res = await axios.get(`http://localhost:8800/cleanerView/${id}`); 
-      const cleaner = res.data[0]; 
-  
+      const res = await axios.get(`http://localhost:8800/cleanerView/${id}`);
+      const cleaner = res.data[0];
+      setTransactions([]);
       setContent(
         <div>
           <h3>Cleaner Info</h3>
@@ -364,9 +392,6 @@ const CleanerView = () => {
                 <tr>
                   <th>Cleaning Tools</th>
                   <td>{cleaner['Cleaning Tools']}</td>
-                    {/* <button onClick={() => handleUpdateCleanerTools}
-                      className="button">UpdateCleanerTools
-                    </button> */}
                 </tr>
               </tbody>
             </table>
@@ -381,7 +406,6 @@ const CleanerView = () => {
       setContent("Something went wrong while fetching the cleaner data.");
     }
   };
-  
 
   return (
     <div className="dashboard">
@@ -495,7 +519,6 @@ const CleanerView = () => {
               <input
                 type="date"
                 name="dateOfBirth"
-                placeholder="Phone Number"
                 value={formData.dateOfBirth}
                 onChange={handleChange}
                 required
@@ -516,18 +539,104 @@ const CleanerView = () => {
                 onChange={handleChange}
                 required
               />
-              {/* <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select Role</option>
-                <option value="cleaner">Cleaner</option>
-                <option value="owner">Owner</option>
-              </select> */}
               <button type="submit">Submit</button>
             </form>
+          </div>
+        )}
+
+        {showRatingForm && (
+          <div className="form">
+            <h1>Rate this Order</h1>
+            <form onSubmit={handleRatingSubmit}>
+              <label>
+                Behavior:
+                <input
+                  type="number"
+                  placeholder="Behavior"
+                  name="behavior"
+                  value={ratingData.behavior}
+                  onChange={handleRatingChange}
+                  required
+                />
+              </label>
+              <label>
+                Professionalism:
+                <input
+                  type="number"
+                  placeholder="Professionalism"
+                  name="professionalism"
+                  value={ratingData.professionalism}
+                  onChange={handleRatingChange}
+                  required
+                />
+              </label>
+              <label>
+                Overall Score:
+                <input
+                  type="number"
+                  placeholder="Overall Score"
+                  name="overallScore"
+                  value={ratingData.overallScore}
+                  onChange={handleRatingChange}
+                  required
+                />
+              </label>
+              <label>
+                Comment:
+                <textarea
+                  placeholder="Comment"
+                  name="comment"
+                  value={ratingData.comment}
+                  onChange={handleRatingChange}
+                />
+              </label>
+              <button type="submit">Submit Rating</button>
+            </form>
+          </div>
+        )}
+
+        {!showRatingForm && transactions.length > 0 && (
+          <div>
+            <h2>Transaction History</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>cleaning_date</th>
+                  <th>Property Name</th>
+                  <th>Stree</th>
+                  <th>City</th>
+                  <th>Payment Amount</th>
+                  <th>Payment Type</th>
+                  <th>Service Description</th>
+                  <th>Owner Name</th>
+                  <th>Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions.map((order) => (
+                  <tr key={order.idorders}>
+                    <td>{order.idorders}</td>
+                    <td>{order['Service date'] ? new Date(order['Service date']).toLocaleDateString() : "N/A"}</td>
+                    <td>{order['Property Name'] || "N/A"}</td>
+                    <td>{order.Street || "N/A"}</td>
+                    <td>{order.City || "N/A"}</td>
+                    <td>{order['Payment Amount'] ? `$${order['Payment Amount']}` : "N/A"}</td>
+                    <td>{order['Payment Type'] || "N/A"}</td>
+                    <td>{order['Service Description'] || "N/A"}</td>
+                    <td>{order['First Name']} {order['Last Name']}</td>
+                    <td>
+                      <button
+                        onClick={() => handleOwnerRating(order.idorders)}
+                        className="button"
+                      >
+                        Rate This Order
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
         {typeof content === "string" ? <p>{content}</p> : content}
