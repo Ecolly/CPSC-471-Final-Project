@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-
+import { FaBars } from "react-icons/fa";
 
 const OwnerView = () => {
   const [error, setError] = useState(false);
   const { id } = useParams();
   const [owners, setOwners] = useState([]);
   const [content, setContent] = useState(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false); 
 
+  const toggleMenu = () => setIsMenuOpen((prev) => !prev);
   //add button to add an owner
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
@@ -180,33 +182,45 @@ const OwnerView = () => {
       setOwners(ownersData); // Update the owners state
 
       setContent(
-        <div>
-          <h3>Personal Information</h3>
-          {ownersData.length > 0 ? (
-            ownersData.map((owner) => (
-              <div key={owner.idusers} style={{ border: "1px solid #ddd", padding: "10px", marginBottom: "15px" }}>
-                <p><strong>First Name:</strong> {owner["First Name"]}</p>
-                <p><strong>Middle Initial:</strong> {owner["Middle Initial"] || "-"}</p>
-                <p><strong>Last Name:</strong> {owner["Last Name"]}</p>
-                <p><strong>Email:</strong> {owner.Email}</p>
-                <p><strong>Password:</strong> {owner.Password}</p>
-                <p><strong>City:</strong> {owner.City || "-"}</p>
-                <p><strong>Street:</strong> {owner.Street || "-"}</p>
-                <p><strong>ZIP:</strong> {owner.ZIP || "-"}</p>
-                <p><strong>Phone Number:</strong> {owner["Phone Number"]}</p>
-                <p><strong>Gender:</strong> {owner.Gender}</p>
-                <p><strong>Date of Birth:</strong> {new Date(owner["Date of Birth"]).toLocaleDateString()}</p>
-                <button onClick={() => handleEdit(owner.idusers)} style={{ marginRight: "10px" }}>
-                  Edit
-                </button>
-                <button onClick={() => handleDelete(owner.idusers)}>Delete</button>
-              </div>
-            ))
-          ) : (
-            <p>No Owner data available.</p>
-          )}
+  <div style={{ textAlign: "left" }}>
+     <h3>Personal Information</h3>
+    {ownersData.length > 0 ? (
+      ownersData.map((owner) => (
+        <div
+          key={owner.idusers}
+          style={{
+            border: "1px solid #ddd",
+            padding: "10px",
+            marginBottom: "15px",
+            textAlign: "left",
+          }}
+        >
+          <p><strong>First Name:</strong> {owner["First Name"]}</p>
+          <p><strong>Middle Initial:</strong> {owner["Middle Initial"] || "-"}</p>
+          <p><strong>Last Name:</strong> {owner["Last Name"]}</p>
+          <p><strong>Email:</strong> {owner.Email}</p>
+          <p><strong>Password:</strong> {owner.Password}</p>
+          <p><strong>City:</strong> {owner.City || "-"}</p>
+          <p><strong>Street:</strong> {owner.Street || "-"}</p>
+          <p><strong>ZIP:</strong> {owner.ZIP || "-"}</p>
+          <p><strong>Phone Number:</strong> {owner["Phone Number"]}</p>
+          <p><strong>Gender:</strong> {owner.Gender}</p>
+          <p><strong>Date of Birth:</strong> {new Date(owner["Date of Birth"]).toLocaleDateString()}</p>
+          <button
+            onClick={() => handleEdit(owner.idusers)}
+            style={{ marginRight: "10px" }}
+          >
+            Edit
+          </button>
         </div>
-      );
+      ))
+    ) : (
+      <p>No owner data available.</p>
+    )}
+
+  </div>
+);
+
     } catch (err) {
       console.error("Error fetching owners:", err);
       setError(true);
@@ -214,16 +228,7 @@ const OwnerView = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:8800/owner/${id}`);
-      alert("Owner deleted successfully!");
-      setOwners(owners.filter((owner) => owner.idusers !== id)); // Update the state
-    } catch (err) {
-      console.error("Error deleting owner:", err);
-      alert("Failed to delete owner.");
-    }
-  };
+
   const handleEdit = (id) => {
     console.log("Edit owner with ID:", id);
     // Redirect to edit page or open an inline edit form
@@ -251,6 +256,78 @@ const OwnerView = () => {
             Order History
           </button>
         </nav>
+        {/* Hamburger Menu */}
+        <div style={{ position: "relative" }}>
+          <FaBars
+            className="hamburger-icon"
+            onClick={toggleMenu}
+            style={{
+              cursor: "absolute",
+              top: "10px",
+              fontSize: "24px",              
+              right: "10px",
+              cursor: "pointer"
+            }}
+          />
+          {isMenuOpen && (
+            <div
+              style={{
+                position: "absolute",
+                top: "40px",
+                right: "10px",
+                backgroundColor: "#fff",
+                border: "1px solid #ddd",
+                borderRadius: "5px",
+                boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+                zIndex: 100,
+                width: "200px",
+              }}
+            >
+              <button
+                style={{
+                  display: "block",
+                  width: "100%",
+                  padding: "10px",
+                  border: "none",
+                  backgroundColor: "transparent",
+                  textAlign: "left",
+                  cursor: "pointer",
+                }}
+                onClick={() => alert("Additional Option 1 clicked")}
+              >
+                Additional Option 1
+              </button>
+              <button
+                style={{
+                  display: "block",
+                  width: "100%",
+                  padding: "10px",
+                  border: "none",
+                  backgroundColor: "transparent",
+                  textAlign: "left",
+                  cursor: "pointer",
+                }}
+                onClick={() => alert("Additional Option 2 clicked")}
+              >
+                Additional Option 2
+              </button>
+              <button
+                style={{
+                  display: "block",
+                  width: "100%",
+                  padding: "10px",
+                  border: "none",
+                  backgroundColor: "transparent",
+                  textAlign: "left",
+                  cursor: "pointer",
+                }}
+                onClick={() => alert("Additional Option 3 clicked")}
+              >
+                Additional Option 3
+              </button>
+            </div>
+          )}
+        </div>
       </header>
       <main className="content">
         {typeof content === "string" ? <p>{content}</p> : content}
