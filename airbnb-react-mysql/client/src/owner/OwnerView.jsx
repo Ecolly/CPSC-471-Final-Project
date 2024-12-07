@@ -72,58 +72,52 @@ const OwnerView = () => {
   };
 
   //
-  // const handleViewProperties = async (e) => { //see the properties they have listed > edit them if want
-  //   e.preventDefault();
-  //   try {
-  //     const res = await axios.get(`http://localhost:8800/jobBoard`); 
-  //     const jobs = res.data;
-  //     setContent(
-  //       <div>
-  //         <h3>Job Board</h3>
-  //         {jobs.length > 0 ? (
-  //           <table>
-  //             <thead>
-  //               <tr>
-  //                 <th>Request ID</th>
-  //                 <th>Owner ID</th>
-  //                 <th>Property ID</th>
-  //                 <th>Payment Amount</th>
-  //                 <th>Payment Type</th>
-  //                 <th>Service Description</th>
-  //                 <th>Service Date</th>
-  //               </tr>
-  //             </thead>
-  //             <tbody>
-  //               {jobs.map((job) => (
-  //                   <tr key={job.idrequest}>
-  //                   <td>{job.idrequest}</td>
-  //                   <td>{job.ownerid}</td>
-  //                   <td>{job.propertyid}</td>
-  //                   <td>
-  //                       {job["Payment Amount"] !== undefined && !isNaN(job["Payment Amount"]) ? (
-  //                       `$${parseFloat(job["Payment Amount"]).toFixed(2)}`
-  //                       ) : (
-  //                       "N/A"
-  //                       )}
-  //                   </td>
-  //                   <td>{job["Payment Type"] || "N/A"}</td>
-  //                   <td>{job["Service Description"] || "N/A"}</td>
-  //                   <td>{job["Service date"] ? new Date(job["Service date"]).toLocaleDateString() : "N/A"}</td>
-  //                   </tr>
-  //               ))}
-  //               </tbody>
-  //           </table>
-  //         ) : (
-  //           <p>No job data available.</p>
-  //         )}
-  //       </div>
-  //     );
-  //   } catch (err) {
-  //     console.error(err);
-  //     setError(true);
-  //     setContent("Something went wrong while fetching the job data.");
-  //   }
-  // };
+  const handleViewRequests = async (e) => { //see the properties they have listed > edit them if want
+    e.preventDefault();
+    try {
+      const res = await axios.get(`http://localhost:8800/requestsView/${id}`); // Fetch requests by owner ID
+      const requests = res.data;
+  
+      setContent(
+        <div>
+          <h3>Owner's Requests</h3>
+          {requests.length > 0 ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Property ID</th>
+                  <th>Payment Amount</th>
+                  <th>Payment Type</th>
+                  <th>Service Description</th>
+                  <th>Service Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {requests.map((request) => (
+                  <tr key={request.idrequest}>
+                    <td>{request.idrequest}</td>
+                    <td>{request.propertyid}</td>
+                    <td>{request["Payment Amount"]}</td>
+                    <td>{request["Payment Type"]}</td>
+                    <td>{request["Service Description"] || "N/A"}</td>
+                    <td>{new Date(request["Service date"]).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>No requests found for this owner.</p>
+          )}
+        </div>
+      );
+    } catch (err) {
+      console.error("Error fetching requests:", err.response || err.message);
+      console.error(err);
+      setError(true);
+      setContent("Something went wrong while fetching the request data.");
+    }
+  };
   
 
   const handleOrderHistory = async () => {
@@ -248,7 +242,7 @@ const OwnerView = () => {
           <button className="nav-button" onClick={handleViewProperties}>
             View Property
           </button>
-          <button className="nav-button" onClick={handleRequests}>
+          <button className="nav-button" onClick={handleViewRequests}>
             View Requests
           </button>
           <button className="nav-button" onClick={handleOrderHistory}>

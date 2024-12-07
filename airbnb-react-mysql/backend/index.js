@@ -9,7 +9,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "ThisisAnnoying1!?",
+  password: "Thisisannoying1!?",
   database: "airbnbnetwork",
 });
 
@@ -59,12 +59,29 @@ app.get("/propertyView/:ownerId", (req, res) => {
 });
 
 
+app.get("/requestsView/:ownerId", (req, res) => {
+  const { ownerId } = req.params;
 
+  const query = `
+    SELECT idrequest, propertyid, \`Payment Amount\`, \`Payment Type\`, 
+           \`Service Description\`, \`Service date\`
+    FROM requests
+    WHERE ownerid = ?
+  `;
 
+  db.query(query, [ownerId], (err, rows) => {
+    if (err) {
+      console.error("Error fetching requests:", err);
+      return res.status(500).json({ message: "Something went wrong while fetching the requests." });
+    }
 
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ message: "No requests found for this owner." });
+    }
 
-
-
+    res.json(rows);
+  });
+});
 
 
 
