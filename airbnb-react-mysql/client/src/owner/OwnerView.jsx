@@ -4,9 +4,10 @@ import { useParams } from "react-router-dom";
 
 
 const OwnerView = () => {
-  const [content, setContent] = useState("Welcome! Click a button to see content here.");
   const [error, setError] = useState(false);
   const { id } = useParams();
+  const [owners, setOwners] = useState([]);
+  const [content, setContent] = useState(null);
 
   //add button to add an owner
   const handleUpdateProfile = async (e) => {
@@ -173,58 +174,59 @@ const OwnerView = () => {
   const handleShowOwner = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.get(`http://localhost:8800/ownerView/${id}`); 
-      const owners = res.data; 
+      const res = await axios.get(`http://localhost:8800/ownerView/${id}`); // Replace with dynamic ID if needed
+      const ownersData = res.data;
+
+      setOwners(ownersData); // Update the owners state
+
       setContent(
         <div>
-          <h3>Owners Info</h3>
-          {owners.length > 0 ? (
-            <table>
-              <thead>
-                <tr>
-                <th>ID</th>
-                <th>First Name</th>
-                <th>Middle Initial</th>
-                <th>Last Name</th>
-                <th>Email</th>
-                <th>Password</th>
-                <th>City</th>
-                <th>Street</th>
-                <th>ZIP</th>
-                <th>Phone Number</th>
-                <th>Gender</th>
-                <th>Date of Birth</th>
-                </tr>
-              </thead>
-              <tbody>
-                {owners.map((owner) => (
-                  <tr key={owners.idbnbowner}>
-                    <td>{owner.idusers}</td>
-                    <td>{owner["First Name"]}</td>
-                    <td>{owner["Middle Initial"] || "-"}</td>
-                    <td>{owner["Last Name"]}</td>
-                    <td>{owner.Email}</td>
-                    <td>{owner.Password}</td>
-                    <td>{owner.City || "-"}</td>
-                    <td>{owner.Street || "-"}</td>
-                    <td>{owner.ZIP || "-"}</td>
-                    <td>{owner["Phone Number"]}</td>
-                    <td>{owner.Gender}</td>
-                    <td>{new Date(owner["Date of Birth"]).toLocaleDateString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <h3>Personal Information</h3>
+          {ownersData.length > 0 ? (
+            ownersData.map((owner) => (
+              <div key={owner.idusers} style={{ border: "1px solid #ddd", padding: "10px", marginBottom: "15px" }}>
+                <p><strong>First Name:</strong> {owner["First Name"]}</p>
+                <p><strong>Middle Initial:</strong> {owner["Middle Initial"] || "-"}</p>
+                <p><strong>Last Name:</strong> {owner["Last Name"]}</p>
+                <p><strong>Email:</strong> {owner.Email}</p>
+                <p><strong>Password:</strong> {owner.Password}</p>
+                <p><strong>City:</strong> {owner.City || "-"}</p>
+                <p><strong>Street:</strong> {owner.Street || "-"}</p>
+                <p><strong>ZIP:</strong> {owner.ZIP || "-"}</p>
+                <p><strong>Phone Number:</strong> {owner["Phone Number"]}</p>
+                <p><strong>Gender:</strong> {owner.Gender}</p>
+                <p><strong>Date of Birth:</strong> {new Date(owner["Date of Birth"]).toLocaleDateString()}</p>
+                <button onClick={() => handleEdit(owner.idusers)} style={{ marginRight: "10px" }}>
+                  Edit
+                </button>
+                <button onClick={() => handleDelete(owner.idusers)}>Delete</button>
+              </div>
+            ))
           ) : (
             <p>No Owner data available.</p>
           )}
         </div>
       );
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching owners:", err);
       setError(true);
-      setContent("Something went wrong while fetching the cleaner data.");
+      setContent("Something went wrong while fetching the owner data.");
     }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8800/owner/${id}`);
+      alert("Owner deleted successfully!");
+      setOwners(owners.filter((owner) => owner.idusers !== id)); // Update the state
+    } catch (err) {
+      console.error("Error deleting owner:", err);
+      alert("Failed to delete owner.");
+    }
+  };
+  const handleEdit = (id) => {
+    console.log("Edit owner with ID:", id);
+    // Redirect to edit page or open an inline edit form
   };
   
 
