@@ -9,7 +9,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "root",
+  password: "ThisisAnnoying1!?",
   database: "airbnbnetwork",
 });
 
@@ -31,6 +31,43 @@ app.get("/ownerView/:id", (req, res) => {
     }
   });
 });
+
+app.get("/propertyView/:ownerId", (req, res) => {
+  const { ownerId } = req.params;
+
+  const query = `
+    SELECT idproperty, Street, City, ZIP, \`Property Name\` AS 'Property Name',
+           \`Size (sqt feet)\`, \`Number of rooms\`, Type, CheckInTime, CheckoutTime
+    FROM property
+    WHERE idowner = ?
+  `;
+
+  db.query(query, [ownerId], (err, rows) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      return res.status(500).json({ message: "Something went wrong while fetching the properties." });
+    }
+
+    console.log("Query result:", rows);
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ message: "No properties found for this owner." });
+    }
+
+    res.json(rows);
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
 
 ////////////////////////////////////////////////////////////
 app.get("/", (req, res) => {
@@ -267,43 +304,6 @@ app.get("/cleanertransactions/:id", (req, res) => {
     }
     //console.log(data);
     res.status(200).json(data); 
-  });
-});
-
-//Owner Rating in cleanerview
-app.post('/ownerRating', (req, res) => {
-  const { behavior, professionalism, overallScore, comment, idorders} = req.body;
-  if (!behavior || !professionalism || !overallScore || !idorders) {
-    return res.status(400).json({ error: 'Missing required fields.' });
-  }
-
-    const q = `
-    INSERT INTO airbnbnetwork.owner_rating (
-      idorder,
-      idowner,
-      Comment,
-      Behavior,
-      Professionalism,
-      \`Overall Score\`
-    )
-    VALUES (
-      ?, 
-      (SELECT idowner FROM airbnbnetwork.orders WHERE idorders = ?), 
-      ?, 
-      ?, 
-      ?, 
-      ?
-    )
-  `;
-
-  const values = [idorders, idorders, comment || '', behavior, professionalism, overallScore];
-
-  db.query(q, values, (err, result) => {
-    if (err) {
-      console.error('Failed to insert owner rating:', err);
-      return res.status(500).json({ error: 'Something went wrong while submitting the rating.' });
-    }
-    res.json({ message: 'Rating submitted successfully!' });
   });
 });
 

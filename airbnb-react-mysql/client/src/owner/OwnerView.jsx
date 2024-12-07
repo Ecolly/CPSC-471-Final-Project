@@ -26,59 +26,104 @@ const OwnerView = () => {
     setContent("No Bid history available.");
   };
 
-  //
-  const handleViewProperties = async (e) => { //see the properties they have listed > edit them if want
+  const handleViewProperties = async (e) => {
     e.preventDefault();
+    console.log("Fetching properties for owner ID:", id);
     try {
-      const res = await axios.get(`http://localhost:8800/jobBoard`); 
-      const jobs = res.data;
+      const res = await axios.get(`http://localhost:8800/propertyView/${id}`); // Fetch properties by owner ID
+      const properties = res.data;
       setContent(
         <div>
-          <h3>Job Board</h3>
-          {jobs.length > 0 ? (
+          <h3>Owner's Properties</h3>
+          {properties.length > 0 ? (
             <table>
               <thead>
                 <tr>
-                  <th>Request ID</th>
-                  <th>Owner ID</th>
-                  <th>Property ID</th>
-                  <th>Payment Amount</th>
-                  <th>Payment Type</th>
-                  <th>Service Description</th>
-                  <th>Service Date</th>
+                  <th>ID</th>
+                  <th>Street</th>
+                  <th>City</th>
+                  <th>ZIP</th>
+                  <th>Property Name</th>
                 </tr>
               </thead>
               <tbody>
-                {jobs.map((job) => (
-                    <tr key={job.idrequest}>
-                    <td>{job.idrequest}</td>
-                    <td>{job.ownerid}</td>
-                    <td>{job.propertyid}</td>
-                    <td>
-                        {job["Payment Amount"] !== undefined && !isNaN(job["Payment Amount"]) ? (
-                        `$${parseFloat(job["Payment Amount"]).toFixed(2)}`
-                        ) : (
-                        "N/A"
-                        )}
-                    </td>
-                    <td>{job["Payment Type"] || "N/A"}</td>
-                    <td>{job["Service Description"] || "N/A"}</td>
-                    <td>{job["Service date"] ? new Date(job["Service date"]).toLocaleDateString() : "N/A"}</td>
-                    </tr>
+                {properties.map((property) => (
+                  <tr key={property.idproperty}>
+                    <td>{property.idproperty}</td>
+                    <td>{property.Street}</td>
+                    <td>{property.City}</td>
+                    <td>{property.ZIP}</td>
+                    <td>{property["Property Name"]}</td>
+                  </tr>
                 ))}
-                </tbody>
+              </tbody>
             </table>
           ) : (
-            <p>No job data available.</p>
+            <p>No properties found for this owner.</p>
           )}
         </div>
       );
     } catch (err) {
+      console.error("Error fetching properties:", err.response || err.message);
       console.error(err);
       setError(true);
-      setContent("Something went wrong while fetching the job data.");
+      setContent("Something went wrong while fetching the property data.");
     }
   };
+
+  //
+  // const handleViewProperties = async (e) => { //see the properties they have listed > edit them if want
+  //   e.preventDefault();
+  //   try {
+  //     const res = await axios.get(`http://localhost:8800/jobBoard`); 
+  //     const jobs = res.data;
+  //     setContent(
+  //       <div>
+  //         <h3>Job Board</h3>
+  //         {jobs.length > 0 ? (
+  //           <table>
+  //             <thead>
+  //               <tr>
+  //                 <th>Request ID</th>
+  //                 <th>Owner ID</th>
+  //                 <th>Property ID</th>
+  //                 <th>Payment Amount</th>
+  //                 <th>Payment Type</th>
+  //                 <th>Service Description</th>
+  //                 <th>Service Date</th>
+  //               </tr>
+  //             </thead>
+  //             <tbody>
+  //               {jobs.map((job) => (
+  //                   <tr key={job.idrequest}>
+  //                   <td>{job.idrequest}</td>
+  //                   <td>{job.ownerid}</td>
+  //                   <td>{job.propertyid}</td>
+  //                   <td>
+  //                       {job["Payment Amount"] !== undefined && !isNaN(job["Payment Amount"]) ? (
+  //                       `$${parseFloat(job["Payment Amount"]).toFixed(2)}`
+  //                       ) : (
+  //                       "N/A"
+  //                       )}
+  //                   </td>
+  //                   <td>{job["Payment Type"] || "N/A"}</td>
+  //                   <td>{job["Service Description"] || "N/A"}</td>
+  //                   <td>{job["Service date"] ? new Date(job["Service date"]).toLocaleDateString() : "N/A"}</td>
+  //                   </tr>
+  //               ))}
+  //               </tbody>
+  //           </table>
+  //         ) : (
+  //           <p>No job data available.</p>
+  //         )}
+  //       </div>
+  //     );
+  //   } catch (err) {
+  //     console.error(err);
+  //     setError(true);
+  //     setContent("Something went wrong while fetching the job data.");
+  //   }
+  // };
   
 
   const handleOrderHistory = async () => {
