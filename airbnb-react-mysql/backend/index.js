@@ -58,6 +58,83 @@ app.get("/propertyView/:ownerId", (req, res) => {
   });
 });
 
+//get property information depending on property id
+app.get("/IDpropertyView/:propertyid", (req, res) => {
+  const { propertyid } = req.params;
+  const query = `
+    SELECT idproperty, idowner, Street, City, ZIP, \`Property Name\` AS 'Property Name',
+           \`Size (sqt feet)\`, \`Number of rooms\`, Type, CheckInTime, CheckoutTime
+    FROM property
+    WHERE idproperty = ?
+  `;
+
+  db.query(query, [propertyid], (err, rows) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      return res.status(500).json({ message: "Something went wrong while fetching the properties." });
+    }
+
+    console.log("Query result:", rows);
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ message: "No properties found for this owner." });
+    }
+
+    res.json(rows);
+  });
+});
+
+app.put("/updatePropertyView/:propertyId", (req, res) => {
+  const { propertyId } = req.params;
+  const {
+    street,
+    city,
+    zip,
+    propertyName,
+    size,
+    numberOfRooms,
+    type,
+    checkInTime,
+    checkOutTime,
+  } = req.body;
+
+  const query = `
+    UPDATE property
+    SET Street = ?, City = ?, ZIP = ?, 
+        \`Property Name\` = ?, \`Size (sqt feet)\` = ?, 
+        \`Number of rooms\` = ?, Type = ?, CheckInTime = ?, CheckoutTime = ?
+    WHERE idproperty = ?
+  `;
+
+  const values = [
+    street,
+    city,
+    zip,
+    propertyName,
+    size,
+    numberOfRooms,
+    type,
+    checkInTime,
+    checkOutTime,
+    propertyId,
+  ];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      return res.status(500).json({ message: "Something went wrong while updating the property." });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Property not found." });
+    }
+    res.json({ message: "Property updated successfully." });
+  });
+});
+
+
+
+
+
 app.post("/addProperty/:ownerId", (req, res) => {
   const { ownerId } = req.params; // Extract owner ID from URL
   const {
@@ -118,10 +195,20 @@ app.get("/requestsView/:ownerId", (req, res) => {
   const { ownerId } = req.params;
 
   const query = `
-    SELECT idrequest, propertyid, \`Payment Amount\`, \`Payment Type\`, 
-           \`Service Description\`, \`Service date\`
-    FROM requests
-    WHERE ownerid = ?
+    SELECT 
+      r.idrequest, 
+      r.propertyid, 
+      r.\`Payment Amount\`, 
+      r.\`Payment Type\`, 
+      r.\`Service Description\`, 
+      r.\`Service date\`,
+      p.\`Property Name\`
+    FROM 
+      requests r
+    JOIN 
+      property p ON r.propertyid = p.idproperty -- Join the property table
+    WHERE 
+      r.ownerid = ?
   `;
 
   db.query(query, [ownerId], (err, rows) => {

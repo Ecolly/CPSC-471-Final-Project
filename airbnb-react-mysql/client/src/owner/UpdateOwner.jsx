@@ -57,7 +57,6 @@ const UpdateOwner = () => {
     e.preventDefault();
     try {
       await axios.put(`http://localhost:8800/ownerView/${id}`, formData);
-      alert("Owner updated successfully!");
       navigate(`/ownerView/${id}`); // Redirect to the main page or owner profile page
     } catch (err) {
       console.error("Error updating owner:", err);
