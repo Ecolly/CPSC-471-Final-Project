@@ -9,12 +9,8 @@ import AddProperty from "./owner/AddProperty";
 import UpdateProperty from "./owner/UpdateProperty";
 import AddRequest from "./owner/AddRequest"
 import ViewBids from "./owner/ViewBids"
-<<<<<<< Updated upstream
 import UpdateCleaner from "./cleaner/UpdateCleaner";
-
-=======
 import BottomDecoration from "./pages/Decor";
->>>>>>> Stashed changes
 function App() {
   return (
     <div className="app">
