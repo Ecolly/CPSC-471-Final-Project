@@ -6,6 +6,7 @@ import Login from "./pages/LoginPage";
 import CleanerView from "./cleaner/CleanerView";
 import OwnerView from "./owner/OwnerView";
 import UpdateOwner from "./owner/UpdateOwner";
+import AddProperty from "./owner/AddProperty"
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/cleanerView/:id"element={<CleanerView />} />
           <Route path="/ownerView/:id"element={<OwnerView />} />
           <Route path="/updateOwner/:id" element={<UpdateOwner />} />
+          <Route path="/addProperty/:id" element={<AddProperty />} />
         </Routes>
       </BrowserRouter>
     </div>

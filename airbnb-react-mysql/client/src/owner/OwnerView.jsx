@@ -33,36 +33,54 @@ const OwnerView = () => {
 
   const handleViewProperties = async (e) => {
     e.preventDefault();
-    console.log("Fetching properties for owner ID:", id);
     try {
       const res = await axios.get(`http://localhost:8800/propertyView/${id}`); // Fetch properties by owner ID
       const properties = res.data;
+  
       setContent(
-        <div>
+        <div style={{ textAlign: "left" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <h3>Owner's Properties</h3>
+          <button
+            onClick={() => navigate(`/addProperty/${id}`)}
+            style={{
+              padding: "5px 15px",
+              backgroundColor: "#4CAF50",
+              color: "#fff",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              fontSize: "14px",
+            }}
+          >
+            Add Property
+          </button>
+          </div>
           {properties.length > 0 ? (
-            <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Street</th>
-                  <th>City</th>
-                  <th>ZIP</th>
-                  <th>Property Name</th>
-                </tr>
-              </thead>
-              <tbody>
-                {properties.map((property) => (
-                  <tr key={property.idproperty}>
-                    <td>{property.idproperty}</td>
-                    <td>{property.Street}</td>
-                    <td>{property.City}</td>
-                    <td>{property.ZIP}</td>
-                    <td>{property["Property Name"]}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            properties.map((property) => (
+              <div
+                key={property.idproperty}
+                style={{
+                  border: "1px solid #ddd",
+                  padding: "10px",
+                  marginBottom: "15px",
+                  textAlign: "left",
+                }}
+              >
+                <p>
+                  <strong>Street:</strong> {property.Street} |{" "}
+                  <strong>City:</strong> {property.City} |{" "}
+                  <strong>ZIP:</strong> {property.ZIP} |{" "}
+                  <strong>Property Name:</strong> {property["Property Name"]}
+                </p>
+                <button
+                  onClick={() => handleEdit(property.idproperty)}
+                  style={{ marginRight: "10px" }}
+                >
+                  Edit Property
+                </button>
+              </div>
+            ))
           ) : (
             <p>No properties found for this owner.</p>
           )}
@@ -70,11 +88,11 @@ const OwnerView = () => {
       );
     } catch (err) {
       console.error("Error fetching properties:", err.response || err.message);
-      console.error(err);
       setError(true);
       setContent("Something went wrong while fetching the property data.");
     }
   };
+  
 
   //
   const handleViewRequests = async (e) => { //see the properties they have listed > edit them if want
@@ -246,9 +264,6 @@ const OwnerView = () => {
         <nav className="navigation">
           <button className="nav-button" onClick={handleShowOwner}>
             Profile
-          </button>
-          <button className="nav-button" onClick={handleUpdateProfile}>
-            Update Profile
           </button>
           <button className="nav-button" onClick={handleViewProperties}>
             View Property

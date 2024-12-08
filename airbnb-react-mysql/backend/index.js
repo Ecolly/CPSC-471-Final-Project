@@ -58,6 +58,61 @@ app.get("/propertyView/:ownerId", (req, res) => {
   });
 });
 
+app.post("/addProperty/:ownerId", (req, res) => {
+  const { ownerId } = req.params; // Extract owner ID from URL
+  const {
+    Street,
+    City,
+    ZIP,
+    "Property Name": PropertyName,
+    "Size (sqt feet)": Size,
+    "Number of rooms": NumberOfRooms,
+    Type,
+    CheckInTime,
+    CheckoutTime,
+  } = req.body;
+
+  const query = `
+    INSERT INTO property (
+      idowner,
+      Street,
+      City,
+      ZIP,
+      \`Property Name\`,
+      \`Size (sqt feet)\`,
+      \`Number of rooms\`,
+      Type,
+      CheckInTime,
+      CheckoutTime
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  db.query(
+    query,
+    [
+      ownerId, // Use owner ID from URL
+      Street,
+      City,
+      ZIP,
+      PropertyName,
+      Size,
+      NumberOfRooms,
+      Type,
+      CheckInTime,
+      CheckoutTime,
+    ],
+    (err, result) => {
+      if (err) {
+        console.error("Error executing query:", err);
+        return res.status(500).json({ message: "Something went wrong while adding the property." });
+      }
+
+      res.status(201).json({ message: "Property added successfully!", idproperty: result.insertId });
+    }
+  );
+});
+
+
 
 app.get("/requestsView/:ownerId", (req, res) => {
   const { ownerId } = req.params;
