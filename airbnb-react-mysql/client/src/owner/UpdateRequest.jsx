@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./UpdateOwner.css"; // Link to your CSS file
+import "./UpdateRequest.css"; // Link to your CSS file
 
 const UpdateRequest = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [ownerId, setOwnerId] = useState(null);
-  const [paymentOptions, setPaymentOptions] = useState([]);
+  const [paymentOptions, setPaymentOptions] = useState([]); // Available payment options
   const [formData, setFormData] = useState({
     paymentAmount: "",
     paymentType: "",

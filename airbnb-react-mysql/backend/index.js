@@ -32,6 +32,7 @@ app.get("/ownerView/:id", (req, res) => {
   });
 });
 
+//properties associated with the owner
 app.get("/propertyView/:ownerId", (req, res) => {
   const { ownerId } = req.params;
 
@@ -132,9 +133,6 @@ app.put("/updatePropertyView/:propertyId", (req, res) => {
 });
 
 
-
-
-
 app.post("/addProperty/:ownerId", (req, res) => {
   const { ownerId } = req.params; // Extract owner ID from URL
   const {
@@ -224,6 +222,56 @@ app.get("/requestsView/:ownerId", (req, res) => {
     res.json(rows);
   });
 });
+
+//add a request:
+app.post("/addRequest/:ownerId", (req, res) => {
+  const ownerId = req.params.ownerId;
+  const { propertyId, paymentAmount, paymentType, serviceDescription, serviceDate } = req.body;
+
+  const query = `
+    INSERT INTO requests (create_time, update_time, ownerid, propertyid, \`Payment Amount\`, \`Payment Type\`, \`Service Description\`, \`Service date\`)
+    VALUES (NOW(), NOW(), ?, ?, ?, ?, ?, ?)`;
+
+  const values = [ownerId, propertyId, paymentAmount, paymentType, serviceDescription, serviceDate];
+
+  db.query(query, values, (err, results) => {
+    if (err) {
+      console.error("Error adding request:", err);
+      res.status(500).json({ error: "Failed to add request." });
+    } else {
+      res.status(201).json({ message: "Request added successfully!" });
+    }
+  });
+});
+
+
+
+//owner's payment options 
+app.get("/paymentOptions/:ownerId", (req, res) => {
+  const ownerId = req.params.ownerId;
+
+  const query = `
+    SELECT DISTINCT 'Credit Card' AS PaymentType FROM credit_card WHERE idowner = ?
+    UNION
+    SELECT DISTINCT 'Paypal' AS PaymentType FROM paypal WHERE idowner = ?
+    UNION
+    SELECT DISTINCT 'Debit Card' AS PaymentType FROM debit_card WHERE idowner = ?`;
+
+  db.query(query, [ownerId, ownerId, ownerId], (err, results) => {
+    if (err) {
+      console.error("Error fetching payment options:", err);
+      res.status(500).json({ error: "Failed to fetch payment options." });
+    } else {
+      res.json(results.map((row) => row.PaymentType));
+    }
+  });
+});
+
+
+
+
+
+
 
 //update owner profile
 app.put("/ownerView/:id", (req, res) => {

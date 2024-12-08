@@ -1,23 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./UpdateOwner.css"; // Link to CSS file
 
-const AddProperty = () => {
-  const { id } = useParams();
+const AddRequest = () => {
+  const { id } = useParams(); // Owner ID
   const navigate = useNavigate();
+  const [paymentOptions, setPaymentOptions] = useState([]); // Payment methods
+  const [properties, setProperties] = useState([]); // Properties owned by the user
   const [formData, setFormData] = useState({
-    idowner: "",
-    Street: "",
-    City: "",
-    ZIP: "",
-    "Property Name": "",
-    "Size (sqt feet)": "",
-    "Number of rooms": "",
-    Type: "Apartment",
-    CheckInTime: "",
-    CheckoutTime: "",
+    propertyId: "",
+    paymentAmount: "",
+    paymentType: "",
+    serviceDescription: "",
+    serviceDate: "",
   });
+
+  useEffect(() => {
+    const fetchPaymentOptionsAndProperties = async () => {
+      try {
+        //payment options of the owner
+        const paymentRes = await axios.get(`http://localhost:8800/paymentOptions/${id}`);
+        setPaymentOptions(paymentRes.data);
+
+        //properties associated with the owner
+        const propertyRes = await axios.get(`http://localhost:8800/propertyView/${id}`);
+        setProperties(propertyRes.data);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      }
+    };
+    //get it from the owner
+    fetchPaymentOptionsAndProperties();
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,71 +42,105 @@ const AddProperty = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      
-      await axios.post(`http://localhost:8800/addProperty/${id}`, formData);
-      navigate(`/ownerView/${id}`); // Redirect to the main owner view or properties list
+      await axios.post(`http://localhost:8800/addRequest/${id}`, formData);
+      navigate(`/ownerView/${id}`); // Redirect to owner view
     } catch (err) {
-      console.error("Error adding property:", err);
-      alert("Failed to add property.");
+      console.error("Error adding request:", err);
+      alert("Failed to add request.");
     }
   };
 
   return (
-    <div className="add-property-container">
-      <h2 className="add-property-title">Add Property</h2>
-      <form onSubmit={handleSave} className="add-property-form">
-        {[
-          { label: "Street", name: "Street", type: "text", required: true },
-          { label: "City", name: "City", type: "text", required: true },
-          { label: "ZIP", name: "ZIP", type: "text", required: true },
-          { label: "Property Name", name: "Property Name", type: "text", required: true },
-          { label: "Size (sqt feet)", name: "Size (sqt feet)", type: "number", required: true },
-          { label: "Number of Rooms", name: "Number of rooms", type: "number", required: true },
-          {
-            label: "Type",
-            name: "Type",
-            type: "select",
-            options: ["Apartment", "House", "Villa", "Condo", "Townhouse", "Bungalow"],
-          },
-          { label: "Check-In Time", name: "CheckInTime", type: "time", required: true },
-          { label: "Check-Out Time", name: "CheckoutTime", type: "time", required: true },
-        ].map((field) => (
-          <div className="form-group-horizontal" key={field.name}>
-            <label htmlFor={field.name} className="form-label">
-              {field.label}:
-            </label>
-            {field.type === "select" ? (
-              <select
-                id={field.name}
-                name={field.name}
-                value={formData[field.name]}
-                onChange={handleChange}
-                required={field.required || false}
-                className="form-input"
-              >
-                {field.options.map((option) => (
-                  <option value={option} key={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input
-                id={field.name}
-                name={field.name}
-                type={field.type}
-                value={formData[field.name]}
-                onChange={handleChange}
-                required={field.required || false}
-                className="form-input"
-              />
-            )}
-          </div>
-        ))}
-        <button type="submit" className="save-button">Add Property</button>
+    <div className="add-request-container">
+      <h2 className="add-request-title">Make Request</h2>
+      <form onSubmit={handleSave} className="add-request-form">
+        {/* Property Selector */}
+        <div className="form-group-horizontal">
+          <label htmlFor="propertyId" className="form-label">Property:</label>
+          <select
+            id="propertyId"
+            name="propertyId"
+            value={formData.propertyId}
+            onChange={handleChange}
+            required
+            className="form-input"
+          >
+            <option value="">Select Property</option>
+            {properties.map((property) => (
+              <option value={property.idproperty} key={property.idproperty}>
+                {property["Property Name"]}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Payment Amount */}
+        <div className="form-group-horizontal">
+          <label htmlFor="paymentAmount" className="form-label">Payment Amount:</label>
+          <input
+            id="paymentAmount"
+            name="paymentAmount"
+            type="number"
+            step="0.01"
+            value={formData.paymentAmount}
+            onChange={handleChange}
+            required
+            className="form-input"
+          />
+        </div>
+
+        {/* Payment Type Selector */}
+        <div className="form-group-horizontal">
+          <label htmlFor="paymentType" className="form-label">Payment Type:</label>
+          <select
+            id="paymentType"
+            name="paymentType"
+            value={formData.paymentType}
+            onChange={handleChange}
+            required
+            className="form-input"
+          >
+            <option value="">Select Payment Type</option>
+            {paymentOptions.map((option) => (
+              <option value={option} key={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Service Description */}
+        <div className="form-group-horizontal">
+          <label htmlFor="serviceDescription" className="form-label">Service Description:</label>
+          <textarea
+            id="serviceDescription"
+            name="serviceDescription"
+            value={formData.serviceDescription}
+            onChange={handleChange}
+            className="form-input"
+            placeholder="Describe the service required..."
+          />
+        </div>
+
+        {/* Service Date */}
+        <div className="form-group-horizontal">
+          <label htmlFor="serviceDate" className="form-label">Service Date:</label>
+          <input
+            id="serviceDate"
+            name="serviceDate"
+            type="date"
+            value={formData.serviceDate}
+            onChange={handleChange}
+            required
+            className="form-input"
+          />
+        </div>
+
+        {/* Submit Button */}
+        <button type="submit" className="save-button">Add Request</button>
       </form>
     </div>
   );
 };
 
-export default AddProperty;
+export default AddRequest;

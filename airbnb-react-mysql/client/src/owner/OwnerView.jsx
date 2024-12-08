@@ -251,7 +251,7 @@ const OwnerView = () => {
 
     e.preventDefault();
     try {
-      const res = await axios.get(`http://localhost:8800/ownerView/${id}`); // Replace with dynamic ID if needed
+      const res = await axios.get(`http://localhost:8800/ownerView/${id}`);
       const ownersData = res.data;
       
       setOwners(ownersData); // Update the owners state
@@ -334,6 +334,9 @@ const OwnerView = () => {
           </button>
           <button className="nav-button" onClick={handleOrderHistory}>
             Order History
+          </button>
+          <button className="nav-button" onClick={handleOrderHistory}>
+            Payment methods
           </button>
         </nav>
       </header>

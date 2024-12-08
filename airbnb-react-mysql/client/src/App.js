@@ -7,7 +7,8 @@ import CleanerView from "./cleaner/CleanerView";
 import OwnerView from "./owner/OwnerView";
 import UpdateOwner from "./owner/UpdateOwner";
 import AddProperty from "./owner/AddProperty";
-import UpdateProperty from "./owner/UpdateProperty"
+import UpdateProperty from "./owner/UpdateProperty";
+import AddRequest from "./owner/AddRequest"
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/updateOwner/:id" element={<UpdateOwner />} />
           <Route path="/addProperty/:id" element={<AddProperty />} />
           <Route path ="/updateProperty/:id" element={<UpdateProperty/>}/> 
+          <Route path ="/addRequest/:id" element={<AddRequest/>}/> 
         </Routes>
       </BrowserRouter>
     </div>
