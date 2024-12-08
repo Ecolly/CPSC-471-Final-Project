@@ -1,31 +1,33 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const CleanerView = () => {
   const [content, setContent] = useState("Welcome! Click a button to see content here.");
   const [error, setError] = useState(false);
   const { id } = useParams();
+  const navigate = useNavigate(); 
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [showRatingForm, setShowRatingForm] = useState(false);
   const [ratingOrderId, setRatingOrderId] = useState(null);
   const [transactions, setTransactions] = useState([]);
 
-  const [formData, setFormData] = useState({
-    firstName: "",
-    middleInitial: "",
-    lastName: "",
-    email: "",
-    password: "",
-    city: "",
-    street: "",
-    zip: "",
-    phoneNumber: "",
-    gender: "",
-    dateOfBirth: "",
-    bankAccount: "",
-    cleaningTools: ""
-  });
+  // const [formData, setFormData] = useState({
+  //   firstName: "",
+  //   middleInitial: "",
+  //   lastName: "",
+  //   email: "",
+  //   password: "",
+  //   city: "",
+  //   street: "",
+  //   zip: "",
+  //   phoneNumber: "",
+  //   gender: "",
+  //   dateOfBirth: "",
+  //   bankAccount: "",
+  //   cleaningTools: ""
+  // });
 
   const [ratingData, setRatingData] = useState({
     behavior: "",
@@ -34,13 +36,13 @@ const CleanerView = () => {
     comment: "",
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     [name]: value,
+  //   }));
+  // };
 
   const handleRatingChange = (e) => {
     const { name, value } = e.target;
@@ -50,34 +52,40 @@ const CleanerView = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.put(`http://localhost:8800/updateCleaner/${id}`, formData);
-      setContent(
-        <div>
-          <p style={{ color: "green" }}>
-            {res.data.message || "Profile updated successfully!"}
-          </p>
-        </div>
-      );
-      setShowUpdateForm(false);
-    } catch (err) {
-      console.error(err);
-      setContent(
-        <div>
-          <p style={{ color: "red" }}>
-            Something went wrong while updating the profile.
-          </p>
-        </div>
-      );
-    }
-  };
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const res = await axios.put(`http://localhost:8800/updateCleaner/${id}`, formData);
+  //     setContent(
+  //       <div>
+  //         <p style={{ color: "green" }}>
+  //           {res.data.message || "Profile updated successfully!"}
+  //         </p>
+  //       </div>
+  //     );
+  //     setShowUpdateForm(false);
+  //   } catch (err) {
+  //     console.error(err);
+  //     setContent(
+  //       <div>
+  //         <p style={{ color: "red" }}>
+  //           Something went wrong while updating the profile.
+  //         </p>
+  //       </div>
+  //     );
+  //   }
+  // };
+
+  // const handleUpdateProfile = () => {
+  //   setContent("");
+  //   setShowUpdateForm(true);
+  // };
 
   const handleUpdateProfile = () => {
-    setContent("");
-    setShowUpdateForm(true);
-  };
+      navigate(`/updateCleaner/${id}`);
+      console.log("Edit owner with ID:", id);
+      // Redirect to edit page or open an inline edit form
+    };
 
   const handleBidding = async (idrequest) => {
     try {
@@ -433,7 +441,7 @@ const CleanerView = () => {
         </nav>
       </header>
       <main className="content">
-        {showUpdateForm && (
+        {/* {showUpdateForm && (
           <div className="form">
             <h1>Update Your Profile</h1>
             <form onSubmit={handleSubmit}>
@@ -542,7 +550,7 @@ const CleanerView = () => {
               <button type="submit">Submit</button>
             </form>
           </div>
-        )}
+        )} */}
 
         {showRatingForm && (
           <div className="form">

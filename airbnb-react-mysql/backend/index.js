@@ -9,7 +9,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "Thisisannoying1!?",
+  password: "root",
   database: "airbnbnetwork",
 });
 
@@ -271,6 +271,39 @@ app.put("/updateCleaner/:id", (req, res) => {
       return res.status(500).json({ error: "Something went wrong while updating the profile." });
     }
     return res.json({ message: "Profile updated successfully!", data });
+  });
+});
+
+app.get("/updateCleaner/:id", (req, res) => {
+  const cleanerID = req.params.id;
+  const q = `
+        SELECT 
+        u.\`First Name\`,
+        u.\`Middle Initial\`,
+        u.\`Last Name\`,
+        u.Email,
+        u.Password,
+        u.City,
+        u.Street,
+        u.ZIP,
+        u.\`Phone Number\`,
+        u.Gender,
+        u.\`Date of Birth\`,
+        c.\`Bank Account #\`,
+        t.\`Cleaning Tools\`
+    FROM airbnbnetwork.cleaner c
+    JOIN airbnbnetwork.users u ON c.idcleaner = u.idusers
+    JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
+    WHERE c.idcleaner = ? ;
+      `;
+
+  db.query(q, [cleanerID], (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Something went wrong while getting the profile." });
+    }
+    //console.log(data);
+    return res.json({ message: "Profile loaded successfully!", data });
   });
 });
 

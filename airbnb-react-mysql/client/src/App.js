@@ -7,6 +7,7 @@ import CleanerView from "./cleaner/CleanerView";
 import OwnerView from "./owner/OwnerView";
 import UpdateOwner from "./owner/UpdateOwner";
 import AddProperty from "./owner/AddProperty"
+import UpdateCleaner from "./cleaner/UpdateCleaner";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/register" element={<Add />} />
           <Route path="/update/:id" element={<Update />} />
           <Route path="/cleanerView/:id"element={<CleanerView />} />
+          <Route path="/updateCleaner/:id" element={<UpdateCleaner />} />
           <Route path="/ownerView/:id"element={<OwnerView />} />
           <Route path="/updateOwner/:id" element={<UpdateOwner />} />
           <Route path="/addProperty/:id" element={<AddProperty />} />
