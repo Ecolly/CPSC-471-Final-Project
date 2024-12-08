@@ -244,6 +244,36 @@ app.post("/addRequest/:ownerId", (req, res) => {
   });
 });
 
+//viewe bids on request
+
+app.get("/viewBids/:requestId", (req, res) => {
+  const { requestId } = req.params;
+
+  // SQL query to fetch the bid details
+  const query = `
+  SELECT 
+    u.\`First Name\` AS firstName, 
+    b.idreqest AS requestId, 
+    c.\`Bank Account #\` AS bankAccount, 
+    r.\`Payment Amount\` AS paymentAmount, 
+    r.\`Service Description\` AS serviceDescription, 
+    r.\`Service date\` AS serviceDate
+    FROM bid b
+    JOIN cleaner c ON b.idcleaner = c.idcleaner
+    JOIN requests r ON b.idreqest = r.idrequest
+    JOIN users u ON u.idusers = c.idcleaner
+    WHERE b.idreqest = ?
+  `;
+
+  db.execute(query, [requestId], (err, results) => {
+    if (err) {
+      console.error("Error fetching bids:", err);
+      return res.status(500).send("Something went wrong while fetching the bid data.");
+    }
+    res.json(results); // Return the fetched data as JSON
+  });
+});
+
 
 
 //owner's payment options 

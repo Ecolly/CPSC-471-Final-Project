@@ -9,7 +9,7 @@ import UpdateOwner from "./owner/UpdateOwner";
 import AddProperty from "./owner/AddProperty";
 import UpdateProperty from "./owner/UpdateProperty";
 import AddRequest from "./owner/AddRequest"
-
+import ViewBids from "./owner/ViewBids"
 function App() {
   return (
     <div className="app">
@@ -25,6 +25,7 @@ function App() {
           <Route path="/addProperty/:id" element={<AddProperty />} />
           <Route path ="/updateProperty/:id" element={<UpdateProperty/>}/> 
           <Route path ="/addRequest/:id" element={<AddRequest/>}/> 
+          <Route path ="/viewBids/:requestId" element={<ViewBids/>}/> 
         </Routes>
       </BrowserRouter>
     </div>

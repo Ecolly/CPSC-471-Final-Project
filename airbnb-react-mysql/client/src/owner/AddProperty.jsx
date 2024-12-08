@@ -27,7 +27,6 @@ const AddProperty = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      
       await axios.post(`http://localhost:8800/addProperty/${id}`, formData);
       navigate(`/ownerView/${id}`); // Redirect to the main owner view or properties list
     } catch (err) {

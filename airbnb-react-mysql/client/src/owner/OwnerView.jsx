@@ -167,6 +167,7 @@ const OwnerView = () => {
                       Edit Request
                   </button>
                   <button
+                      
                       onClick={() => navigate(`/viewBids/${request.idrequest}`)} // Navigate to View Bids page
                       style={{
                           padding: "5px 10px",
@@ -189,6 +190,7 @@ const OwnerView = () => {
         </div>
       );
     } catch (err) {
+      
       console.error("Error fetching requests:", err.response || err.message);
       setError(true);
       setContent("Something went wrong while fetching the request data.");
