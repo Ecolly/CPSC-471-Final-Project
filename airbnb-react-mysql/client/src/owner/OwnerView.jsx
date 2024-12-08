@@ -10,25 +10,10 @@ const OwnerView = () => {
   const { id } = useParams();
   const [owners, setOwners] = useState([]);
   const [content, setContent] = useState(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); 
   const navigate = useNavigate(); 
-  //add button to add an owner
-  const handleUpdateProfile = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.put(`http://localhost:8800/ownerView/${id}`);
-      setContent("Owner updated successfully!");
-    } catch (err) {
-      console.error(err);
-      setError(true);
-      setContent("Something went wrong while updating the owner.");
-    }
-  };
+  const [currentSection, setCurrentSection] = useState('profile'); 
 
-  // see requests they posted on a property > click see bids > show all the bids by cleaner
-  const handleRequests = async () => {
-    setContent("No Bid history available.");
-  };
+
 
   const handleViewProperties = async (e) => {
     e.preventDefault();

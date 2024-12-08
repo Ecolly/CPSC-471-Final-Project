@@ -298,11 +298,6 @@ app.get("/paymentOptions/:ownerId", (req, res) => {
 });
 
 
-
-
-
-
-
 //update owner profile
 app.put("/ownerView/:id", (req, res) => {
   const ownerId = req.params.id;

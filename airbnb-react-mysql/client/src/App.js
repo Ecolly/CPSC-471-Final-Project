@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Add from "./pages/Add";
 import Home from "./pages/Homepage";
-import Update from "./pages/Update";
 import Login from "./pages/LoginPage";
 import CleanerView from "./cleaner/CleanerView";
 import OwnerView from "./owner/OwnerView";
@@ -10,8 +9,12 @@ import AddProperty from "./owner/AddProperty";
 import UpdateProperty from "./owner/UpdateProperty";
 import AddRequest from "./owner/AddRequest"
 import ViewBids from "./owner/ViewBids"
+<<<<<<< Updated upstream
 import UpdateCleaner from "./cleaner/UpdateCleaner";
 
+=======
+import BottomDecoration from "./pages/Decor";
+>>>>>>> Stashed changes
 function App() {
   return (
     <div className="app">
@@ -20,7 +23,6 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Add />} />
-          <Route path="/update/:id" element={<Update />} />
           <Route path="/cleanerView/:id"element={<CleanerView />} />
           <Route path="/updateCleaner/:id" element={<UpdateCleaner />} />
           <Route path="/ownerView/:id"element={<OwnerView />} />
@@ -31,6 +33,7 @@ function App() {
           <Route path ="/viewBids/:requestId" element={<ViewBids/>}/> 
         </Routes>
       </BrowserRouter>
+      <BottomDecoration />
     </div>
   );
 }
