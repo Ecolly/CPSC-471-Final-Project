@@ -32,6 +32,7 @@ app.get("/ownerView/:id", (req, res) => {
   });
 });
 
+//properties associated with the owner
 app.get("/propertyView/:ownerId", (req, res) => {
   const { ownerId } = req.params;
 
@@ -57,6 +58,80 @@ app.get("/propertyView/:ownerId", (req, res) => {
     res.json(rows);
   });
 });
+
+//get property information depending on property id
+app.get("/IDpropertyView/:propertyid", (req, res) => {
+  const { propertyid } = req.params;
+  const query = `
+    SELECT idproperty, idowner, Street, City, ZIP, \`Property Name\` AS 'Property Name',
+           \`Size (sqt feet)\`, \`Number of rooms\`, Type, CheckInTime, CheckoutTime
+    FROM property
+    WHERE idproperty = ?
+  `;
+
+  db.query(query, [propertyid], (err, rows) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      return res.status(500).json({ message: "Something went wrong while fetching the properties." });
+    }
+
+    console.log("Query result:", rows);
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ message: "No properties found for this owner." });
+    }
+
+    res.json(rows);
+  });
+});
+
+app.put("/updatePropertyView/:propertyId", (req, res) => {
+  const { propertyId } = req.params;
+  const {
+    street,
+    city,
+    zip,
+    propertyName,
+    size,
+    numberOfRooms,
+    type,
+    checkInTime,
+    checkOutTime,
+  } = req.body;
+
+  const query = `
+    UPDATE property
+    SET Street = ?, City = ?, ZIP = ?, 
+        \`Property Name\` = ?, \`Size (sqt feet)\` = ?, 
+        \`Number of rooms\` = ?, Type = ?, CheckInTime = ?, CheckoutTime = ?
+    WHERE idproperty = ?
+  `;
+
+  const values = [
+    street,
+    city,
+    zip,
+    propertyName,
+    size,
+    numberOfRooms,
+    type,
+    checkInTime,
+    checkOutTime,
+    propertyId,
+  ];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      return res.status(500).json({ message: "Something went wrong while updating the property." });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Property not found." });
+    }
+    res.json({ message: "Property updated successfully." });
+  });
+});
+
 
 app.post("/addProperty/:ownerId", (req, res) => {
   const { ownerId } = req.params; // Extract owner ID from URL
@@ -118,10 +193,20 @@ app.get("/requestsView/:ownerId", (req, res) => {
   const { ownerId } = req.params;
 
   const query = `
-    SELECT idrequest, propertyid, \`Payment Amount\`, \`Payment Type\`, 
-           \`Service Description\`, \`Service date\`
-    FROM requests
-    WHERE ownerid = ?
+    SELECT 
+      r.idrequest, 
+      r.propertyid, 
+      r.\`Payment Amount\`, 
+      r.\`Payment Type\`, 
+      r.\`Service Description\`, 
+      r.\`Service date\`,
+      p.\`Property Name\`
+    FROM 
+      requests r
+    JOIN 
+      property p ON r.propertyid = p.idproperty -- Join the property table
+    WHERE 
+      r.ownerid = ?
   `;
 
   db.query(query, [ownerId], (err, rows) => {
@@ -137,6 +222,86 @@ app.get("/requestsView/:ownerId", (req, res) => {
     res.json(rows);
   });
 });
+
+//add a request:
+app.post("/addRequest/:ownerId", (req, res) => {
+  const ownerId = req.params.ownerId;
+  const { propertyId, paymentAmount, paymentType, serviceDescription, serviceDate } = req.body;
+
+  const query = `
+    INSERT INTO requests (create_time, update_time, ownerid, propertyid, \`Payment Amount\`, \`Payment Type\`, \`Service Description\`, \`Service date\`)
+    VALUES (NOW(), NOW(), ?, ?, ?, ?, ?, ?)`;
+
+  const values = [ownerId, propertyId, paymentAmount, paymentType, serviceDescription, serviceDate];
+
+  db.query(query, values, (err, results) => {
+    if (err) {
+      console.error("Error adding request:", err);
+      res.status(500).json({ error: "Failed to add request." });
+    } else {
+      res.status(201).json({ message: "Request added successfully!" });
+    }
+  });
+});
+
+//viewe bids on request
+
+app.get("/viewBids/:requestId", (req, res) => {
+  const { requestId } = req.params;
+
+  // SQL query to fetch the bid details
+  const query = `
+  SELECT 
+    u.\`First Name\` AS firstName, 
+    b.idreqest AS requestId, 
+    c.\`Bank Account #\` AS bankAccount, 
+    r.\`Payment Amount\` AS paymentAmount, 
+    r.\`Service Description\` AS serviceDescription, 
+    r.\`Service date\` AS serviceDate
+    FROM bid b
+    JOIN cleaner c ON b.idcleaner = c.idcleaner
+    JOIN requests r ON b.idreqest = r.idrequest
+    JOIN users u ON u.idusers = c.idcleaner
+    WHERE b.idreqest = ?
+  `;
+
+  db.execute(query, [requestId], (err, results) => {
+    if (err) {
+      console.error("Error fetching bids:", err);
+      return res.status(500).send("Something went wrong while fetching the bid data.");
+    }
+    res.json(results); // Return the fetched data as JSON
+  });
+});
+
+
+
+//owner's payment options 
+app.get("/paymentOptions/:ownerId", (req, res) => {
+  const ownerId = req.params.ownerId;
+
+  const query = `
+    SELECT DISTINCT 'Credit Card' AS PaymentType FROM credit_card WHERE idowner = ?
+    UNION
+    SELECT DISTINCT 'Paypal' AS PaymentType FROM paypal WHERE idowner = ?
+    UNION
+    SELECT DISTINCT 'Debit Card' AS PaymentType FROM debit_card WHERE idowner = ?`;
+
+  db.query(query, [ownerId, ownerId, ownerId], (err, results) => {
+    if (err) {
+      console.error("Error fetching payment options:", err);
+      res.status(500).json({ error: "Failed to fetch payment options." });
+    } else {
+      res.json(results.map((row) => row.PaymentType));
+    }
+  });
+});
+
+
+
+
+
+
 
 //update owner profile
 app.put("/ownerView/:id", (req, res) => {

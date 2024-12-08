@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-
+import "./OwnerProfile.css";
 
 const OwnerView = () => {
   const [error, setError] = useState(false);
@@ -12,7 +12,6 @@ const OwnerView = () => {
   const [content, setContent] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
   const navigate = useNavigate(); 
-  const toggleMenu = () => setIsMenuOpen((prev) => !prev);
   //add button to add an owner
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
@@ -72,9 +71,15 @@ const OwnerView = () => {
                   <strong>City:</strong> {property.City} |{" "}
                   <strong>ZIP:</strong> {property.ZIP} |{" "}
                   <strong>Property Name:</strong> {property["Property Name"]}
+                  <strong>Size:</strong> {property["Size (sqt feet)"]} sq. feet |{" "}
+                  <strong>Rooms:</strong> {property["Number of rooms"]} |{" "}
+                  <strong>Type:</strong> {property.Type} |{" "}
+                  <strong>Check-in Time:</strong> {property.CheckInTime} |{" "}
+                  <strong>Checkout Time:</strong> {property.CheckoutTime}
+                  
                 </p>
                 <button
-                  onClick={() => handleEdit(property.idproperty)}
+                  onClick={() => handleEditProperty(property.idproperty)}
                   style={{ marginRight: "10px" }}
                 >
                   Edit Property
@@ -95,52 +100,103 @@ const OwnerView = () => {
   
 
   //
-  const handleViewRequests = async (e) => { //see the properties they have listed > edit them if want
+  const handleViewRequests = async (e) => {
     e.preventDefault();
     try {
       const res = await axios.get(`http://localhost:8800/requestsView/${id}`); // Fetch requests by owner ID
       const requests = res.data;
   
       setContent(
-        <div>
-          <h3>Owner's Requests</h3>
+        <div style={{ textAlign: "left" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <h3>Owner's Requests</h3>
+            <button
+              onClick={() => navigate(`/addRequest/${id}`)} // Navigate to an Add Request page
+              style={{
+                padding: "5px 15px",
+                backgroundColor: "#4CAF50",
+                color: "#fff",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+                fontSize: "14px",
+              }}
+            >
+              Add Request
+            </button>
+          </div>
           {requests.length > 0 ? (
-            <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Property ID</th>
-                  <th>Payment Amount</th>
-                  <th>Payment Type</th>
-                  <th>Service Description</th>
-                  <th>Service Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {requests.map((request) => (
-                  <tr key={request.idrequest}>
-                    <td>{request.idrequest}</td>
-                    <td>{request.propertyid}</td>
-                    <td>{request["Payment Amount"]}</td>
-                    <td>{request["Payment Type"]}</td>
-                    <td>{request["Service Description"] || "N/A"}</td>
-                    <td>{new Date(request["Service date"]).toLocaleDateString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            requests.map((request) => (
+              <div
+                key={request.idrequest}
+                style={{
+                  border: "1px solid #ddd",
+                  padding: "10px",
+                  marginBottom: "15px",
+                  textAlign: "left",
+                }}
+              >
+                <p>
+                  <strong>Request ID:</strong> {request.idrequest} |{" "}
+                  <strong>Property Name:</strong> {request["Property Name"]} |{" "}
+                  <strong>Payment Amount:</strong> {request["Payment Amount"]} |{" "}
+                  <strong>Payment Type:</strong> {request["Payment Type"]}
+                </p>
+                <p>
+                  <strong>Service Description:</strong>{" "}
+                  {request["Service Description"] || "N/A"}
+                </p>
+                <p>
+                  <strong>Service Date:</strong>{" "}
+                  {new Date(request["Service date"]).toLocaleDateString()}
+                </p>
+                <div>
+                  <button
+                      onClick={() => handleEditRequest(request.idrequest)}
+                      style={{
+                          padding: "5px 10px",
+                          marginRight: "10px",
+                          backgroundColor: "#007BFF",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "5px",
+                          cursor: "pointer",
+                          fontSize: "14px",
+                      }}
+                  >
+                      Edit Request
+                  </button>
+                  <button
+                      
+                      onClick={() => navigate(`/viewBids/${request.idrequest}`)} // Navigate to View Bids page
+                      style={{
+                          padding: "5px 10px",
+                          backgroundColor: "#FF5722",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "5px",
+                          cursor: "pointer",
+                          fontSize: "14px",
+                      }}
+                  >
+                      View Bids
+                  </button>
+              </div>
+              </div>
+            ))
           ) : (
             <p>No requests found for this owner.</p>
           )}
         </div>
       );
     } catch (err) {
+      
       console.error("Error fetching requests:", err.response || err.message);
-      console.error(err);
       setError(true);
       setContent("Something went wrong while fetching the request data.");
     }
   };
+  
   
 
   const handleOrderHistory = async () => {
@@ -197,7 +253,7 @@ const OwnerView = () => {
 
     e.preventDefault();
     try {
-      const res = await axios.get(`http://localhost:8800/ownerView/${id}`); // Replace with dynamic ID if needed
+      const res = await axios.get(`http://localhost:8800/ownerView/${id}`);
       const ownersData = res.data;
       
       setOwners(ownersData); // Update the owners state
@@ -253,11 +309,18 @@ const OwnerView = () => {
   const handleEdit = (id) => {
     navigate(`/updateOwner/${id}`);
     console.log("Edit owner with ID:", id);
-    // Redirect to edit page or open an inline edit form
+  };
+  const handleEditProperty = (id) => {
+    navigate(`/updateProperty/${id}`);
+    console.log("Edit property with ID:", id);
   };
   
+  const handleEditRequest = async () => {
+    setContent("No Bid history available.");
+  };
 
   return (
+    <>
     <div className="dashboard">
       <header className="header">
         <h2>Hello, Owner</h2>
@@ -274,97 +337,16 @@ const OwnerView = () => {
           <button className="nav-button" onClick={handleOrderHistory}>
             Order History
           </button>
+          <button className="nav-button" onClick={handleOrderHistory}>
+            Payment methods
+          </button>
         </nav>
-        {/* Hamburger Menu */}
-        <div style={{ position: "relative" }}>
-          <FaBars
-            className="hamburger-icon"
-            onClick={toggleMenu}
-            style={{
-              cursor: "absolute",
-              top: "10px",
-              fontSize: "24px",              
-              right: "10px",
-              color: "#333",
-              cursor: "pointer"
-            }}
-          />
-            <div
-            style={{
-              position: "absolute",
-              top: "40px",
-              right: "10px",
-              backgroundColor: "#fff",
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-              zIndex: 100,
-              width: "200px",
-              maxHeight: isMenuOpen ? "200px" : "0",
-              overflow: "hidden",
-              transition: "max-height 0.3s ease-out", // Smooth dropdown animation
-            }}
-          >
-              <button
-                style={{
-                  display: "block",
-                  width: "100%",
-                  padding: "10px",
-                  right: "40px",
-                  border: "none",
-                  backgroundColor: "transparent",
-                  textAlign: "left",
-                  fontSize: "16px",
-                  color: "#333",
-                  cursor: "pointer",
-                  borderBottom: "1px solid #ddd",
-                }}
-                onClick={() => alert("Additional Option 1 clicked")}
-              >
-                Additional Option 1
-              </button>
-              <button
-                style={{
-                  display: "block",
-                  width: "100%",
-                  padding: "10px",
-                  right: "40px",
-                  border: "none",
-                  backgroundColor: "transparent",
-                  textAlign: "left",
-                  fontSize: "16px",
-                  color: "#333",
-                  cursor: "pointer",
-                  borderBottom: "1px solid #ddd",
-                }}
-                onClick={() => alert("Additional Option 2 clicked")}
-              >
-                Additional Option 2
-              </button>
-              <button
-                style={{
-                  display: "block",
-                  width: "100%",
-                  padding: "10px",
-                  right: "40px",
-                  border: "none",
-                  backgroundColor: "transparent",
-                  textAlign: "left",
-                  fontSize: "16px",
-                  color: "#333",
-                  cursor: "pointer",
-                }}
-                onClick={() => alert("Additional Option 3 clicked")}
-              >
-                Additional Option 3
-              </button>
-            </div>
-        </div>
       </header>
       <main className="content">
         {typeof content === "string" ? <p>{content}</p> : content}
       </main>
     </div>
+    </>
   );
 };
 
