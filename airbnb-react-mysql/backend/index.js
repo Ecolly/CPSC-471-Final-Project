@@ -83,8 +83,63 @@ app.get("/requestsView/:ownerId", (req, res) => {
   });
 });
 
+//update owner profile
+app.put("/ownerView/:id", (req, res) => {
+  const ownerId = req.params.id;
+  const {
+    firstName,
+    middleInitial,
+    lastName,
+    email,
+    password,
+    city,
+    street,
+    zip,
+    phoneNumber,
+    gender,
+    dateOfBirth,
+  } = req.body;
 
+  const q = `
+    UPDATE airbnbnetwork.users u
+    JOIN airbnbnetwork.bnbowner c ON u.idusers = c.idbnbowner
+    SET
+      u.\`First Name\` = ?,
+      u.\`Middle Initial\` = ?,
+      u.\`Last Name\` = ?,
+      u.Email = ?,
+      u.Password = ?,
+      u.City = ?,
+      u.Street = ?,
+      u.ZIP = ?,
+      u.\`Phone Number\` = ?,
+      u.Gender = ?,
+      u.\`Date of Birth\` = ?
+    WHERE u.idusers = ?;
+  `;
 
+  const values = [
+    firstName,
+    middleInitial,
+    lastName,
+    email,
+    password,
+    city,
+    street,
+    zip,
+    phoneNumber,
+    gender,
+    dateOfBirth,
+    ownerId
+  ];
+  db.query(q, values, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Something went wrong while updating the profile." });
+    }
+    return res.json({ message: "Profile updated successfully!", data });
+  });
+});
 
 ////////////////////////////////////////////////////////////
 app.get("/", (req, res) => {

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+
 
 const OwnerView = () => {
   const [error, setError] = useState(false);
@@ -9,7 +11,7 @@ const OwnerView = () => {
   const [owners, setOwners] = useState([]);
   const [content, setContent] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
-
+  const navigate = useNavigate(); 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
   //add button to add an owner
   const handleUpdateProfile = async (e) => {
@@ -174,11 +176,12 @@ const OwnerView = () => {
 
   //show the inital page
   const handleShowOwner = async (e) => {
+
     e.preventDefault();
     try {
       const res = await axios.get(`http://localhost:8800/ownerView/${id}`); // Replace with dynamic ID if needed
       const ownersData = res.data;
-
+      
       setOwners(ownersData); // Update the owners state
 
       setContent(
@@ -230,6 +233,7 @@ const OwnerView = () => {
 
 
   const handleEdit = (id) => {
+    navigate(`/updateOwner/${id}`);
     console.log("Edit owner with ID:", id);
     // Redirect to edit page or open an inline edit form
   };
@@ -266,32 +270,39 @@ const OwnerView = () => {
               top: "10px",
               fontSize: "24px",              
               right: "10px",
+              color: "#333",
               cursor: "pointer"
             }}
           />
-          {isMenuOpen && (
             <div
-              style={{
-                position: "absolute",
-                top: "40px",
-                right: "10px",
-                backgroundColor: "#fff",
-                border: "1px solid #ddd",
-                borderRadius: "5px",
-                boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
-                zIndex: 100,
-                width: "200px",
-              }}
-            >
+            style={{
+              position: "absolute",
+              top: "40px",
+              right: "10px",
+              backgroundColor: "#fff",
+              border: "1px solid #ddd",
+              borderRadius: "8px",
+              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+              zIndex: 100,
+              width: "200px",
+              maxHeight: isMenuOpen ? "200px" : "0",
+              overflow: "hidden",
+              transition: "max-height 0.3s ease-out", // Smooth dropdown animation
+            }}
+          >
               <button
                 style={{
                   display: "block",
                   width: "100%",
                   padding: "10px",
+                  right: "40px",
                   border: "none",
                   backgroundColor: "transparent",
                   textAlign: "left",
+                  fontSize: "16px",
+                  color: "#333",
                   cursor: "pointer",
+                  borderBottom: "1px solid #ddd",
                 }}
                 onClick={() => alert("Additional Option 1 clicked")}
               >
@@ -302,10 +313,14 @@ const OwnerView = () => {
                   display: "block",
                   width: "100%",
                   padding: "10px",
+                  right: "40px",
                   border: "none",
                   backgroundColor: "transparent",
                   textAlign: "left",
+                  fontSize: "16px",
+                  color: "#333",
                   cursor: "pointer",
+                  borderBottom: "1px solid #ddd",
                 }}
                 onClick={() => alert("Additional Option 2 clicked")}
               >
@@ -316,9 +331,12 @@ const OwnerView = () => {
                   display: "block",
                   width: "100%",
                   padding: "10px",
+                  right: "40px",
                   border: "none",
                   backgroundColor: "transparent",
                   textAlign: "left",
+                  fontSize: "16px",
+                  color: "#333",
                   cursor: "pointer",
                 }}
                 onClick={() => alert("Additional Option 3 clicked")}
@@ -326,7 +344,6 @@ const OwnerView = () => {
                 Additional Option 3
               </button>
             </div>
-          )}
         </div>
       </header>
       <main className="content">
