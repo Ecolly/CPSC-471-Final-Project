@@ -38,7 +38,7 @@ const Login = () => {
         navigate(`/ownerView/${id}`); // Navigate to cleaner dashboard
       }  
     
-    } catch (err) {
+    } catch (err) { 
       console.log(err);
       setError(true);
     }

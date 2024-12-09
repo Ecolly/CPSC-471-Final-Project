@@ -407,6 +407,79 @@ app.get('/ownerorders/:id', (req, res) => {
   });
 });
 
+app.post('/addCreditCard/:id', (req, res) => {
+  const { id } = req.params;  // The owner ID passed as a URL parameter
+  const { cardNumber, cardName, billingAddress, expiryDate } = req.body;  // Extract data from the body
+
+  // Format expiry date if needed
+  let formattedExpiryDate = expiryDate;
+  if (expiryDate && !expiryDate.includes("-")) {
+    formattedExpiryDate = `${expiryDate}-28`; // Assuming the last day of the month is 28th
+  } else if (expiryDate && expiryDate.split("-").length === 2) {
+    // If expiryDate is in 'YYYY-MM' format, append '-28' for day
+    formattedExpiryDate = `${expiryDate}-28`;
+  }
+
+  // Prepare SQL query
+  const query = `INSERT INTO credit_card (idowner, \`Card Number\`, \`Name\`, \`Billing Address\`, \`Expiracy Date\`) 
+                 VALUES (?, ?, ?, ?, ?)`;
+
+  // Execute the query
+  db.query(query, [id, cardNumber, cardName, billingAddress, formattedExpiryDate], (err, result) => {
+    if (err) {
+      console.error("Error adding credit card:", err);
+      return res.status(500).send("Failed to add credit card.");
+    }
+    res.send("Credit card added successfully.");
+  });
+});
+
+
+app.post('/addDebitCard/:id', (req, res) => {
+  const { id } = req.params;  // The owner ID passed as a URL parameter
+  const { cardNumber, cardName, billingAddress, expiryDate } = req.body;  // Extract data from the body
+
+  // Format expiry date if needed
+  let formattedExpiryDate = expiryDate;
+  if (expiryDate && !expiryDate.includes("-")) {
+    formattedExpiryDate = `${expiryDate}-28`; // Assuming the last day of the month is 28th
+  } else if (expiryDate && expiryDate.split("-").length === 2) {
+    // If expiryDate is in 'YYYY-MM' format, append '-28' for day
+    formattedExpiryDate = `${expiryDate}-28`;
+  }
+
+  // Prepare SQL query
+  const query = `INSERT INTO debit_card (idowner, \`Card Number\`, \`Name\`, \`Billing Address\`, \`Expiry Date\`) 
+                 VALUES (?, ?, ?, ?, ?)`;
+
+  // Execute the query
+  db.query(query, [id, cardNumber, cardName, billingAddress, formattedExpiryDate], (err, result) => {
+    if (err) {
+      console.error("Error adding debit_card card:", err);
+      return res.status(500).send("Failed to add credit card.");
+    }
+    res.send("debit_card card added successfully.");
+  });
+});
+
+
+app.post('/addPaypal/:id', (req, res) => {
+  const { id } = req.params;
+  const { accountNumber } = req.body;
+
+  const query = `INSERT INTO paypal (idowner, AccountNumber) 
+                 VALUES (?, ?)`;
+
+  db.query(query, [id, accountNumber], (err, result) => {
+    if (err) {
+      console.error("Error adding PayPal account:", err);
+      return res.status(500).send("Failed to add PayPal account.");
+    }
+    res.send("PayPal account added successfully.");
+  });
+});
+
+
 
 ////////////////////////////////////////////////////////////
 app.get("/", (req, res) => {
