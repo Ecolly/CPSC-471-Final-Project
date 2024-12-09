@@ -726,6 +726,7 @@ app.get("/updateCleaner/:id", (req, res) => {
 //get cleaner profile data
 app.get("/cleanerView/:id", (req, res) => {
   const cleanerID = req.params.id;
+  console.log(cleanerID);
   const q = `
   SELECT 
         u.\`First Name\`,
