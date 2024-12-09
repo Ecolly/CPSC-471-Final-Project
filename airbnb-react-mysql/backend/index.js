@@ -9,7 +9,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "Thisisannoying1!?",
+  password: "root",
   database: "airbnbnetwork",
 });
 
@@ -661,25 +661,30 @@ app.get("/cleanerView/:id", (req, res) => {
   const q = `
   SELECT 
         u.\`First Name\`,
+        u.\`Middle Initial\`,
         u.\`Last Name\`,
         u.Email,
-        u.\`Phone Number\`,
+        u.Password,
         u.City,
         u.Street,
         u.ZIP,
+        u.\`Phone Number\`,
+        u.Gender,
+        u.\`Date of Birth\`,
         c.\`Bank Account #\`,
         t.\`Cleaning Tools\`
     FROM airbnbnetwork.cleaner c
-    LEFT JOIN airbnbnetwork.users u ON c.idcleaner = u.idusers
-    LEFT JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
-    WHERE c.idcleaner = ? `;
+    JOIN airbnbnetwork.users u ON c.idcleaner = u.idusers
+    JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
+    WHERE c.idcleaner = ? ;
+     `;
 
   db.query(q, [cleanerID], (err, data) => {
     if (err) {
       console.log(err);
       return res.json(err);
     }
-    //console.log(data);
+    console.log(data);
     return res.json(data);
   });
 });
@@ -690,16 +695,27 @@ app.put("/ownerRating", (req, res) => {
   const { idorder, behavior, professionalism, overallScore, comment } = req.body;
 
   const q = `
-    UPDATE airbnbnetwork.owner_rating
-    SET
-      behavior = ?,
-      professionalism = ?,
-      \`overall score\` = ?,
-      comment = ?
-    WHERE idorder = ?;
-  `;
+  INSERT INTO airbnbnetwork.owner_rating (
+    idorder,
+    idowner,
+    Comment,
+    Behavior,
+    Professionalism,
+    \`Overall Score\`
+  )
+  SELECT 
+    ? AS idorder,
+    t.idowner,
+    ? AS comment,
+    ? AS behavior,
+    ? AS professionalism,
+    ? AS overallScore
+  FROM airbnbnetwork.transaction t
+  WHERE t.idorder = ?
+`;
 
-  const values = [behavior, professionalism, overallScore, comment, idorder];
+
+  const values = [idorder, comment, behavior, professionalism, overallScore, idorder];
 
   db.query(q, values, (err, data) => {
     if (err) {

@@ -363,54 +363,57 @@ const CleanerView = () => {
       const cleaner = res.data[0];
       setTransactions([]);
       setContent(
-        <div>
-          <h3>Cleaner Info</h3>
+        <div style={{ textAlign: "center", fontFamily: "'Arial', sans-serif", padding: "20px" }}>
+          <h3 style={{ fontSize: "24px", marginBottom: "20px" }}>Cleaner Info</h3>
           {cleaner ? (
-            <table>
+            <table
+              style={{
+                margin: "0 auto",
+                borderCollapse: "collapse",
+                width: "80%",
+                maxWidth: "600px",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)"
+              }}
+            >
               <tbody>
-                <tr>
-                  <th>First Name</th>
-                  <td>{cleaner['First Name']}</td>
-                </tr>
-                <tr>
-                  <th>Last Name</th>
-                  <td>{cleaner['Last Name']}</td>
-                </tr>
-                <tr>
-                  <th>Email</th>
-                  <td>{cleaner.Email}</td>
-                </tr>
-                <tr>
-                  <th>Phone Number</th>
-                  <td>{cleaner['Phone Number']}</td>
-                </tr>
-                <tr>
-                  <th>City</th>
-                  <td>{cleaner.City}</td>
-                </tr>
-                <tr>
-                  <th>Street</th>
-                  <td>{cleaner.Street}</td>
-                </tr>
-                <tr>
-                  <th>ZIP</th>
-                  <td>{cleaner.ZIP}</td>
-                </tr>
-                <tr>
-                  <th>Bank Account #</th>
-                  <td>{cleaner['Bank Account #']}</td>
-                </tr>
-                <tr>
-                  <th>Cleaning Tools</th>
-                  <td>{cleaner['Cleaning Tools']}</td>
-                </tr>
+                {Object.entries(cleaner).map(([key, value]) => (
+                  <tr key={key}>
+                    <th
+                      style={{
+                        textAlign: "right",
+                        padding: "10px",
+                        backgroundColor: "#f4f4f4",
+                        borderBottom: "1px solid #ddd",
+                        fontWeight: "bold",
+                        width: "40%"
+                      }}
+                    >
+                      {key.replace(/_/g, " ")}
+                    </th>
+                    <td
+                      style={{
+                        textAlign: "left",
+                        padding: "10px",
+                        borderBottom: "1px solid #ddd",
+                        backgroundColor: "#ffffff",
+                        wordBreak: "break-word"
+                      }}
+                    >
+                      {key === "Date of Birth"
+                        ? new Date(value).toLocaleDateString()
+                        : value}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           ) : (
-            <p>No cleaner data available.</p>
+            <p style={{ fontSize: "16px", color: "gray" }}>No cleaner data available.</p>
           )}
         </div>
       );
+      
+      
     } catch (err) {
       console.error(err);
       setError(true);
