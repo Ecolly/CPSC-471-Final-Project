@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./UpdateRequest.css"; // Link to your CSS file
+import "./UpdateOwner.css"; // Link to your CSS file
 
 const UpdateRequest = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [ownerId, setOwnerId] = useState(null);
+  const [requestID, setrequestID] = useState(null);
   const [paymentOptions, setPaymentOptions] = useState([]); // Available payment options
   const [formData, setFormData] = useState({
     paymentAmount: "",
@@ -15,29 +16,40 @@ const UpdateRequest = () => {
     serviceDate: "",
   });
 
+  const fetchPaymentOptions = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8800/paymentOptions/${id}`);
+      setPaymentOptions(res.data); // Store full objects from the backend
+    } catch (err) {
+      console.error("Error fetching payment options:", err);
+    }
+  };
+
   // Fetch request and payment options
   useEffect(() => {
     const fetchRequest = async () => {
       try {
-        const res = await axios.get(`http://localhost:8800/requestView/${id}`);
+        //the requests of an owner, id is by ownerid
+        const res = await axios.get(`http://localhost:8800/requestsView/${id}`);
+        console.log("Response data:", res.data);
         const request = res.data[0];
-        setOwnerId(request.ownerid);
-
+        setOwnerId(id);
+        console.log("Response data:", res.data);
+        setrequestID(request.idrequest);
+        const formattedServiceDate = request["Service date"]?.split("T")[0];
+        console.log("Owner ID:", ownerId);
+        console.log("Request ID:", requestID)
         setFormData({
           paymentAmount: request["Payment Amount"] || "",
           paymentType: request["Payment Type"] || "",
           serviceDescription: request["Service Description"] || "",
-          serviceDate: request["Service date"] || "",
-        });
-
-        // Fetch available payment options
-        const paymentRes = await axios.get(`http://localhost:8800/paymentOptions/${request.ownerid}`);
-        setPaymentOptions(paymentRes.data);
+          serviceDate: formattedServiceDate["Service date"] || "",
+        });      
       } catch (err) {
         console.error("Error fetching request data:", err);
       }
     };
-
+    fetchPaymentOptions();
     fetchRequest();
   }, [id]);
 
@@ -49,7 +61,7 @@ const UpdateRequest = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:8800/updateRequest/${id}`, formData);
+      await axios.put(`http://localhost:8800/updateRequest/${requestID}`, formData);
       navigate(`/ownerView/${ownerId}`);
     } catch (err) {
       console.error("Error updating request:", err);
@@ -89,11 +101,12 @@ const UpdateRequest = () => {
             name="paymentType"
             value={formData.paymentType}
             onChange={handleChange}
+            required
             className="form-input"
           >
             <option value="">Select Payment Type</option>
-            {paymentOptions.map((option) => (
-              <option key={option} value={option}>
+            {paymentOptions.map((option, index) => (
+              <option value={option.PaymentType} key={index}>
                 {option}
               </option>
             ))}

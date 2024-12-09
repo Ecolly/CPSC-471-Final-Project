@@ -277,7 +277,7 @@ app.get("/viewBids/:requestId", (req, res) => {
 
 
 
-//owner's payment options 
+//owner's payment options for the select part
 app.get("/paymentOptions/:ownerId", (req, res) => {
   const ownerId = req.params.ownerId;
 
@@ -297,6 +297,39 @@ app.get("/paymentOptions/:ownerId", (req, res) => {
     }
   });
 });
+
+
+app.get("/paymentInfo/:ownerId", (req, res) => {
+  const ownerId = req.params.ownerId;
+
+  const query = `
+    SELECT DISTINCT 'Credit Card' AS PaymentType, \`Card Number\` AS AccountNumber
+    FROM credit_card
+    WHERE idowner = ?
+
+    UNION
+
+    SELECT DISTINCT 'Paypal' AS PaymentType, \`Account Number\` AS AccountNumber
+    FROM paypal
+    WHERE idowner = ?
+
+    UNION
+
+    SELECT DISTINCT 'Debit Card' AS PaymentType, \`Card Number\` AS AccountNumber
+    FROM debit_card
+    WHERE idowner = ?
+  `
+
+  db.query(query, [ownerId, ownerId, ownerId], (err, results) => {
+    if (err) {
+      console.error("Error fetching payment options:", err);
+      res.status(500).json({ error: "Failed to fetch payment options." });
+    } else {
+      res.json(results);
+    }
+  });
+});
+
 
 
 //update owner profile
@@ -376,6 +409,34 @@ app.post("/acceptBid", (req, res) => {
     res.status(201).json({ message: "Bid accepted and order created successfully!" });
   });
 });
+
+//edit request based on the request ID
+app.put("/updateRequest/:id", (req, res) => {
+  const requestId = req.params.id;
+  const { paymentAmount, paymentType, serviceDescription, serviceDate } = req.body;
+
+  const query = `
+    UPDATE requests
+    SET \`Payment Amount\` = ?, \`Payment Type\` = ?, \`Service Description\` = ?, \`Service date\` = ?
+    WHERE idrequest = ?
+  `;
+
+  db.query(
+    query,
+    [paymentAmount, paymentType, serviceDescription, serviceDate, requestId],
+    (err, result) => {
+      if (err) {
+        console.error("Error updating request:", err);
+        return res.status(500).json({ error: "Failed to update request." });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Request not found." });
+      }
+      res.json({ message: "Request updated successfully." });
+    }
+  );
+});
+
 
 app.get('/ownerorders/:id', (req, res) => {
   const ownerId = req.params.id;  // Get the ownerId from the URL parameter

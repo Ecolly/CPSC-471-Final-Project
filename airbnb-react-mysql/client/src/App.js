@@ -12,6 +12,7 @@ import ViewBids from "./owner/ViewBids"
 import UpdateCleaner from "./cleaner/UpdateCleaner";
 import BottomDecoration from "./pages/Decor";
 import AddPaymentMethod from "./owner/AddPaymentMethod"
+import UpdateRequest from "./owner/UpdateRequest"
 function App() {
   return (
     <div className="app">
@@ -30,6 +31,7 @@ function App() {
           <Route path ="/viewBids/:requestId" element={<ViewBids/>}/> 
           <Route path ="/viewPayments/:id" element={<handlePaymentMethods/>}/> 
           <Route path ="/addPaymentMethod/:id" element={<AddPaymentMethod/>}/> 
+          <Route path ="/updateRequest/:id" element={<UpdateRequest/>}/>
         </Routes>
       </BrowserRouter>
     </div>

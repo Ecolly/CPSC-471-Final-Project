@@ -20,7 +20,8 @@ const OwnerView = () => {
     try {
       const res = await axios.get(`http://localhost:8800/propertyView/${id}`); // Fetch properties by owner ID
       const properties = res.data;
-  
+      console.log(res.data); 
+
       setContent(
         <div style={{ textAlign: "left" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -229,8 +230,9 @@ const OwnerView = () => {
   const handlePaymentMethods = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.get(`http://localhost:8800/paymentOptions/${id}`); // Fetch payment methods by owner ID
+      const res = await axios.get(`http://localhost:8800/paymentInfo/${id}`); // Fetch payment methods by owner ID
       const paymentMethods = res.data;
+      console.log(res.data);
   
       setContent(
         <div style={{ textAlign: "left" }}>
@@ -263,7 +265,8 @@ const OwnerView = () => {
                 }}
               >
                 <p>
-                  <strong>Payment Method:</strong> {method}
+                  <strong>Payment Method:</strong> {method.PaymentType} <br />
+                  <strong>Account Number:</strong> {method.AccountNumber}
                 </p>
               </div>
             ))
@@ -348,6 +351,7 @@ const OwnerView = () => {
   };
   
   const handleEditRequest = async () => {
+    navigate(`/updateRequest/${id}`);
     setContent("No Bid history available.");
   };
 
