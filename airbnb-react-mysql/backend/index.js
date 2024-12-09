@@ -9,7 +9,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "Thisisannoying1!?",
+  password: "root",
   database: "airbnbnetwork",
 });
 
@@ -642,8 +642,8 @@ app.put("/updateCleaner/:id", (req, res) => {
 
   const q = `
     UPDATE airbnbnetwork.users u
-    JOIN airbnbnetwork.cleaner c ON u.idusers = c.idcleaner
-    JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
+    LEFT JOIN airbnbnetwork.cleaner c ON u.idusers = c.idcleaner
+    LEFT JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
     SET
       u.\`First Name\` = ?,
       u.\`Middle Initial\` = ?,
@@ -683,6 +683,7 @@ app.put("/updateCleaner/:id", (req, res) => {
       console.error(err);
       return res.status(500).json({ error: "Something went wrong while updating the profile." });
     }
+    console.log(data);
     return res.json({ message: "Profile updated successfully!", data });
   });
 });
@@ -705,8 +706,8 @@ app.get("/updateCleaner/:id", (req, res) => {
         c.\`Bank Account #\`,
         t.\`Cleaning Tools\`
     FROM airbnbnetwork.cleaner c
-    JOIN airbnbnetwork.users u ON c.idcleaner = u.idusers
-    JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
+    LEFT JOIN airbnbnetwork.users u ON c.idcleaner = u.idusers
+    LEFT JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
     WHERE c.idcleaner = ? ;
       `;
 
@@ -741,8 +742,8 @@ app.get("/cleanerView/:id", (req, res) => {
         c.\`Bank Account #\`,
         t.\`Cleaning Tools\`
     FROM airbnbnetwork.cleaner c
-    JOIN airbnbnetwork.users u ON c.idcleaner = u.idusers
-    JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
+    LEFT JOIN airbnbnetwork.users u ON c.idcleaner = u.idusers
+    LEFT JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
     WHERE c.idcleaner = ? ;
      `;
 
