@@ -266,11 +266,9 @@ const OwnerView = () => {
       const res = await axios.post(`http://localhost:8800/completeOrder`, { orderId, cleanerId, ownerId});
   
       console.log("Order completed:", res.data);
-      alert("Order has been completed successfully!");
       
     } catch (err) {
       console.error("Error completing order:", err);
-      alert("Failed to complete the order.");
     }
   };
 

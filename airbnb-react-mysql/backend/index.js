@@ -9,7 +9,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "root",
+  password: "Thisisannoying1!?",
   database: "airbnbnetwork",
 });
 
@@ -52,7 +52,7 @@ app.get("/propertyView/:ownerId", (req, res) => {
     console.log("Query result:", rows);
 
     if (!rows || rows.length === 0) {
-      return res.status(404).json({ message: "No properties found for this owner." });
+      return res.json(rows);
     }
 
     res.json(rows);
@@ -215,7 +215,7 @@ app.get("/requestsView/:ownerId", (req, res) => {
     }
 
     if (!rows || rows.length === 0) {
-      return res.status(404).json({ message: "No requests found for this owner." });
+      return res.json(rows)
     }
 
     res.json(rows);
