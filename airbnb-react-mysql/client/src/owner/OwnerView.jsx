@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { FaBars } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "./OwnerProfile.css";
 
@@ -9,6 +8,7 @@ const OwnerView = () => {
   const [error, setError] = useState(false);
   const { id } = useParams();
   const [owners, setOwners] = useState([]);
+  const [ownerFname, setOwnersFirstName] = useState(null)
   const [content, setContent] = useState(null);
   const navigate = useNavigate(); 
   const [currentSection, setCurrentSection] = useState('profile'); 
@@ -25,7 +25,7 @@ const OwnerView = () => {
       setContent(
         <div style={{ textAlign: "left" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <h3>Owner's Properties</h3>
+          <h3>Your Properties</h3>
           <button
             onClick={() => navigate(`/addProperty/${id}`)}
             style={{
@@ -95,7 +95,7 @@ const OwnerView = () => {
       setContent(
         <div style={{ textAlign: "left" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <h3>Owner's Requests</h3>
+            <h3>Your Requests</h3>
             <button
               onClick={() => navigate(`/addRequest/${id}`)} // Navigate to an Add Request page
               style={{
@@ -192,8 +192,14 @@ const OwnerView = () => {
   
       setContent(
         <div style={{ textAlign: "left" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <h3>Owner's Orders</h3>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <h3>Your Orders</h3>
           </div>
           {orders.length > 0 ? (
             orders.map((order) => (
@@ -204,15 +210,39 @@ const OwnerView = () => {
                   padding: "10px",
                   marginBottom: "15px",
                   textAlign: "left",
+                  display: "flex",
+                  justifyContent: "space-between", // Add space between order details and button
+                  alignItems: "center", // Align items vertically
                 }}
               >
-                <p>
+                <p style={{ flex: 1 }}>
                   <strong>Property Name:</strong> {order["Property Name"]} |{" "}
-                  <strong>Service Date:</strong> {new Date(order["Service date"]).toLocaleDateString()} |{" "}
-                  <strong>Cleaner:</strong> {order["First Name"]} {order["Last Name"]} |{" "}
+                  <strong>Service Date:</strong>{" "}
+                  {new Date(order["Service date"]).toLocaleDateString()} |{" "}
+                  <strong>Cleaner:</strong> {order["First Name"]}{" "}
+                  {order["Last Name"]} |{" "}
                   <strong>Phone Number:</strong> {order["Phone Number"]} |{" "}
                   <strong>Payment Amount:</strong> ${order["Payment Amount"]}
                 </p>
+  
+                {/* Complete Button */}
+                <button
+                  onClick={() => handleCompleteOrder(order.idorders, order.idcleaner, order.idowner)}
+                  style={{
+                    backgroundColor: "#4CAF50", // Green color
+                    color: "#fff",
+                    padding: "10px 20px",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    transition: "background-color 0.3s", // Smooth transition
+                  }}
+                  onMouseOver={(e) => (e.target.style.backgroundColor = "#45a049")} // Change on hover
+                  onMouseOut={(e) => (e.target.style.backgroundColor = "#4CAF50")} // Reset on hover out
+                >
+                  Complete
+                </button>
               </div>
             ))
           ) : (
@@ -227,6 +257,83 @@ const OwnerView = () => {
     }
   };
   
+  //insert the order ID and the ownerId/cleanerid into the table
+  const handleCompleteOrder = async (orderId, cleanerId, ownerId) => {
+    console.log("Complete Order ID:", orderId);
+  
+    try {
+      // Sending the orderId to the backend to add it to the transaction table
+      const res = await axios.post(`http://localhost:8800/completeOrder`, { orderId, cleanerId, ownerId});
+  
+      console.log("Order completed:", res.data);
+      alert("Order has been completed successfully!");
+      
+    } catch (err) {
+      console.error("Error completing order:", err);
+      alert("Failed to complete the order.");
+    }
+  };
+
+
+  //set transaction
+  const handleTransactions = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.get(`http://localhost:8800/ownertransactions/${id}`); // Fetch transactions by owner ID
+      const transactions = res.data;
+  
+      setContent(
+        <div style={{ textAlign: "left" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <h3>Your Transactions</h3>
+          </div>
+          {transactions.length > 0 ? (
+            transactions.map((transaction) => (
+              <div
+                key={transaction.idorder}
+                style={{
+                  border: "1px solid #ddd",
+                  padding: "10px",
+                  marginBottom: "15px",
+                  textAlign: "left",
+                  display: "flex",
+                  justifyContent: "space-between", // Add space between transaction details and button
+                  alignItems: "center", // Align items vertically
+                }}
+              >
+                <p style={{ flex: 1 }}>
+                  <strong>Order ID:</strong> {transaction.idorder} |{" "}
+                  <strong>Property Name:</strong> {transaction["Property Name"]} |{" "}
+                  <strong>Service Date:</strong>{" "}
+                  {new Date(transaction["Service date"]).toLocaleDateString()} |{" "}
+                  <strong>Cleaner:</strong> {transaction["First Name"]}{" "}
+                  {transaction["Last Name"]} |{" "}
+                  <strong>Owner ID:</strong> {transaction.idowner} |{" "}
+                  <strong>Payment Amount:</strong> ${transaction["Payment Amount"]}
+                </p>
+  
+                {/* You can add action buttons here if needed */}
+              </div>
+            ))
+          ) : (
+            <p>No transactions found for this owner.</p>
+          )}
+        </div>
+      );
+    } catch (err) {
+      console.error("Error fetching transactions:", err.response || err.message);
+      setError(true);
+      setContent("Something went wrong while fetching the transaction data.");
+    }
+  };
+  
+  
   const handlePaymentMethods = async (e) => {
     e.preventDefault();
     try {
@@ -237,7 +344,7 @@ const OwnerView = () => {
       setContent(
         <div style={{ textAlign: "left" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <h3>Owner's Payment Methods</h3>
+            <h3>Your Payment Methods</h3>
             <button
               onClick={() => navigate(`/addPaymentMethod/${id}`)} // Navigate to Add Payment Method page
               style={{
@@ -292,6 +399,7 @@ const OwnerView = () => {
       const ownersData = res.data;
       
       setOwners(ownersData);
+      setOwnersFirstName()
 
       setContent(
   <div style={{ textAlign: "left" }}>
@@ -372,6 +480,9 @@ const OwnerView = () => {
           </button>
           <button className="nav-button" onClick={handleOrderHistory}>
             Order History
+          </button>
+          <button className="nav-button" onClick={handleTransactions}>
+            Transactions
           </button>
           <button className="nav-button" onClick={handlePaymentMethods}>
             Payment methods

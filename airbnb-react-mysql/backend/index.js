@@ -447,14 +447,16 @@ app.get('/ownerorders/:id', (req, res) => {
       r.\`Service date\`,
       u.\`First Name\`,
       u.\`Last Name\`,
-      u.\`Phone Number\`,  -- Assuming 'Phone Number' exists in the 'users' table
-      r.\`Payment Amount\`
-    FROM \`orders\` o
-    JOIN \`requests\` r ON o.\`idrequest\` = r.\`idrequest\`
-    JOIN \`property\` p ON r.\`propertyid\` = p.\`idproperty\`
-    JOIN \`cleaner\` c ON o.\`idcleaner\` = c.\`idcleaner\`
-    JOIN \`users\` u ON c.\`idcleaner\` = u.\`idusers\`
-    WHERE o.\`idowner\` = ?`;
+      u.\`Phone Number\`, 
+      o.idowner,
+      o.idcleaner,
+      o.idorders
+    FROM orders o
+    JOIN requests r ON o.idrequest = r.idrequest
+    JOIN property p ON r.propertyid = p.idproperty
+    JOIN cleaner c ON o.idcleaner = c.idcleaner
+    JOIN users u ON c.idcleaner = u.idusers
+    WHERE o.idowner = ?`;
 
   // Execute the query
   db.execute(query, [ownerId], (err, results) => {
@@ -540,6 +542,64 @@ app.post('/addPaypal/:id', (req, res) => {
   });
 });
 
+app.post("/completeOrder", (req, res) => {
+  const { orderId, cleanerId, ownerId } = req.body; // Get the orderId, cleanerId, and ownerId from the request body
+
+  // Check if the required fields are provided
+  if (!orderId || !cleanerId || !ownerId) {
+    return res.status(400).send("Order ID, Cleaner ID, and Owner ID are required.");
+  }
+
+  // SQL query to insert the order into the transaction table
+  const query = `
+    INSERT INTO transaction (idorder, idowner, idcleaner) 
+    VALUES (?, ?, ?)`;
+
+  // Execute the query with the provided values
+  db.query(query, [orderId, ownerId, cleanerId], (err, result) => {
+    if (err) {
+      console.error("Error inserting into transaction table:", err);
+      return res.status(500).send("Failed to complete the order.");
+    }
+
+    // Respond with success if the insert was successful
+    res.send({ message: "Order completed successfully." });
+  });
+});
+
+
+app.get('/ownertransactions/:id', (req, res) => {
+  const ownerId = req.params.id;
+
+  // SQL query to get transactions for the given owner
+  const query = `
+    SELECT
+      SELECT
+      p.\`Property Name\`,
+      r.\`Service date\`,
+      u.\`First Name\`,
+      u.\`Last Name\`,
+      u.\`Phone Number\`, 
+      o.idowner,
+      o.idcleaner,
+      o.idorders
+    FROM transaction t
+    JOIN orders o ON t.idorder = o.idorders
+    JOIN requests r ON o.idrequest = r.idrequest
+    JOIN property p ON r.propertyid = p.idproperty
+    JOIN cleaner c ON o.idcleaner = c.idcleaner
+    JOIN users u ON c.idcleaner = u.idusers
+    WHERE o.idowner = ?`;
+
+  db.query(query, [ownerId], (err, results) => {
+    if (err) {
+      console.error("Error fetching transactions:", err);
+      return res.status(500).json({ error: "Failed to fetch transactions." });
+    }
+
+    res.json(results); // Send back the transaction data
+  });
+});
 
 
 ////////////////////////////////////////////////////////////
