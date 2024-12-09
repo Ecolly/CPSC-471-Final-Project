@@ -359,8 +359,11 @@ const CleanerView = () => {
     setShowUpdateForm(false);
     setShowRatingForm(false);
     try {
+       
       const res = await axios.get(`http://localhost:8800/cleanerView/${id}`);
       const cleaner = res.data[0];
+      console.log("ID:", id);
+      console.log(res); 
       setTransactions([]);
       setContent(
         <div style={{ textAlign: "center", fontFamily: "'Arial', sans-serif", padding: "20px" }}>

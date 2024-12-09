@@ -706,7 +706,7 @@ app.get("/updateCleaner/:id", (req, res) => {
         t.\`Cleaning Tools\`
     FROM airbnbnetwork.cleaner c
     JOIN airbnbnetwork.users u ON c.idcleaner = u.idusers
-    JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
+    LEFT JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
     WHERE c.idcleaner = ? ;
       `;
 
@@ -725,6 +725,7 @@ app.get("/updateCleaner/:id", (req, res) => {
 //get cleaner profile data
 app.get("/cleanerView/:id", (req, res) => {
   const cleanerID = req.params.id;
+  console.log(cleanerID);
   const q = `
   SELECT 
         u.\`First Name\`,
@@ -742,7 +743,7 @@ app.get("/cleanerView/:id", (req, res) => {
         t.\`Cleaning Tools\`
     FROM airbnbnetwork.cleaner c
     JOIN airbnbnetwork.users u ON c.idcleaner = u.idusers
-    JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
+    LEFT JOIN airbnbnetwork.cleaning_tools t ON t.idcleaner = c.idcleaner
     WHERE c.idcleaner = ? ;
      `;
 
