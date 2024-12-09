@@ -226,6 +226,58 @@ const OwnerView = () => {
     }
   };
   
+  const handlePaymentMethods = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.get(`http://localhost:8800/paymentOptions/${id}`); // Fetch payment methods by owner ID
+      const paymentMethods = res.data;
+  
+      setContent(
+        <div style={{ textAlign: "left" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <h3>Owner's Payment Methods</h3>
+            <button
+              onClick={() => navigate(`/addPaymentMethod/${id}`)} // Navigate to Add Payment Method page
+              style={{
+                padding: "5px 15px",
+                backgroundColor: "#4CAF50",
+                color: "#fff",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+                fontSize: "14px",
+              }}
+            >
+              Add Payment Method
+            </button>
+          </div>
+          {paymentMethods.length > 0 ? (
+            paymentMethods.map((method, index) => (
+              <div
+                key={index}
+                style={{
+                  border: "1px solid #ddd",
+                  padding: "10px",
+                  marginBottom: "15px",
+                  textAlign: "left",
+                }}
+              >
+                <p>
+                  <strong>Payment Method:</strong> {method}
+                </p>
+              </div>
+            ))
+          ) : (
+            <p>No payment methods found for this owner.</p>
+          )}
+        </div>
+      );
+    } catch (err) {
+      console.error("Error fetching payment methods:", err.response || err.message);
+      setError(true);
+      setContent("Something went wrong while fetching the payment method data.");
+    }
+  };
   
 
   //show the inital page
@@ -236,7 +288,7 @@ const OwnerView = () => {
       const res = await axios.get(`http://localhost:8800/ownerView/${id}`);
       const ownersData = res.data;
       
-      setOwners(ownersData); // Update the owners state
+      setOwners(ownersData);
 
       setContent(
   <div style={{ textAlign: "left" }}>
@@ -317,7 +369,7 @@ const OwnerView = () => {
           <button className="nav-button" onClick={handleOrderHistory}>
             Order History
           </button>
-          <button className="nav-button" onClick={handleOrderHistory}>
+          <button className="nav-button" onClick={handlePaymentMethods}>
             Payment methods
           </button>
         </nav>
