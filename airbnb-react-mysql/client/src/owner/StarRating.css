@@ -1,0 +1,55 @@
+/* StarRating.css */
+
+/* Style for the rating stars */
+.star-rating {
+  font-size: 30px;
+  cursor: pointer;
+  color: #d3d3d3; /* Default inactive color */
+}
+
+.star-rating.active {
+  color: #ffcc00; /* Active color for selected stars */
+}
+
+/* Section styles */
+.rating-category {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center; /* Align stars and category name horizontally */
+}
+
+.category-name {
+  margin-right: 10px; /* Space between category name and stars */
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.comment-section {
+  margin-top: 20px;
+}
+
+textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+h2, h3 {
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
