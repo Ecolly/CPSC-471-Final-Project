@@ -744,7 +744,7 @@ app.get("/cleanerView/:id", (req, res) => {
       console.log(err);
       return res.json(err);
     }
-    console.log(data);
+    //console.log(data);
     return res.json(data);
   });
 });
@@ -782,7 +782,7 @@ app.put("/ownerRating", (req, res) => {
       console.error(err);
       return res.status(500).json({ error: "Something went wrong while updating the rating." });
     }
-    console.log(data);
+    //console.log(data);
     return res.json({ message: "Rating updated successfully!", data });
   });
 });
