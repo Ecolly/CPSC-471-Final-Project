@@ -250,22 +250,26 @@ app.get("/viewBids/:requestId", (req, res) => {
 
   // SQL query to fetch the bid details
   const query = `
-  SELECT 
-    c.idcleaner AS idcleaner,
-    r.ownerid as idowner,
-    u.\`First Name\` AS firstName, 
-    b.idreqest AS requestId, 
-    c.\`Bank Account #\` AS bankAccount, 
-    r.\`Payment Amount\` AS paymentAmount, 
-    r.\`Service Description\` AS serviceDescription, 
-    r.\`Service date\` AS serviceDate
+    SELECT 
+      c.idcleaner AS idcleaner,
+      r.ownerid AS idowner,
+      u.\`First Name\` AS firstName, 
+      b.idreqest AS requestId, 
+      c.\`Bank Account #\` AS bankAccount, 
+      r.\`Payment Amount\` AS paymentAmount, 
+      r.\`Service Description\` AS serviceDescription, 
+      r.\`Service date\` AS serviceDate,
+      AVG(cr.\`Reliability\`) AS avgReliability, 
+      AVG(cr.\`Satisfaction\`) AS avgSatisfaction, 
+      AVG(cr.\`Cleanliness\`) AS avgCleanliness
     FROM bid b
     JOIN cleaner c ON b.idcleaner = c.idcleaner
     JOIN requests r ON b.idreqest = r.idrequest
     JOIN users u ON u.idusers = c.idcleaner
+    LEFT JOIN cleaner_rating cr ON cr.idcleaner = c.idcleaner
     WHERE b.idreqest = ?
+    GROUP BY c.idcleaner, r.ownerid, b.idreqest, u.\`First Name\`, r.\`Payment Amount\`, r.\`Service Description\`, r.\`Service date\`, c.\`Bank Account #\`;
   `;
-
   db.execute(query, [requestId], (err, results) => {
     if (err) {
       console.error("Error fetching bids:", err);
@@ -329,6 +333,7 @@ app.get("/paymentInfo/:ownerId", (req, res) => {
     }
   });
 });
+
 
 
 
@@ -450,7 +455,8 @@ app.get('/ownerorders/:id', (req, res) => {
       u.\`Phone Number\`, 
       o.idowner,
       o.idcleaner,
-      o.idorders
+      o.idorders,
+      r.\`Payment Amount\`
     FROM orders o
     JOIN requests r ON o.idrequest = r.idrequest
     JOIN property p ON r.propertyid = p.idproperty
@@ -458,36 +464,28 @@ app.get('/ownerorders/:id', (req, res) => {
     JOIN users u ON c.idcleaner = u.idusers
     WHERE o.idowner = ?`;
 
-  // Execute the query
   db.execute(query, [ownerId], (err, results) => {
     if (err) {
       console.error("Error fetching data:", err);
       return res.status(500).send("Error fetching data.");
     }
-
-    // Return the results to the client
     res.json(results);
   });
 });
 
 app.post('/addCreditCard/:id', (req, res) => {
-  const { id } = req.params;  // The owner ID passed as a URL parameter
-  const { cardNumber, cardName, billingAddress, expiryDate } = req.body;  // Extract data from the body
-
+  const { id } = req.params; 
+  const { cardNumber, cardName, billingAddress, expiryDate } = req.body; 
   // Format expiry date if needed
   let formattedExpiryDate = expiryDate;
   if (expiryDate && !expiryDate.includes("-")) {
     formattedExpiryDate = `${expiryDate}-28`; // Assuming the last day of the month is 28th
   } else if (expiryDate && expiryDate.split("-").length === 2) {
-    // If expiryDate is in 'YYYY-MM' format, append '-28' for day
     formattedExpiryDate = `${expiryDate}-28`;
   }
 
-  // Prepare SQL query
   const query = `INSERT INTO credit_card (idowner, \`Card Number\`, \`Name\`, \`Billing Address\`, \`Expiracy Date\`) 
                  VALUES (?, ?, ?, ?, ?)`;
-
-  // Execute the query
   db.query(query, [id, cardNumber, cardName, billingAddress, formattedExpiryDate], (err, result) => {
     if (err) {
       console.error("Error adding credit card:", err);
@@ -500,14 +498,13 @@ app.post('/addCreditCard/:id', (req, res) => {
 
 app.post('/addDebitCard/:id', (req, res) => {
   const { id } = req.params;  // The owner ID passed as a URL parameter
-  const { cardNumber, cardName, billingAddress, expiryDate } = req.body;  // Extract data from the body
+  const { cardNumber, cardName, billingAddress, expiryDate } = req.body;  
 
   // Format expiry date if needed
   let formattedExpiryDate = expiryDate;
   if (expiryDate && !expiryDate.includes("-")) {
-    formattedExpiryDate = `${expiryDate}-28`; // Assuming the last day of the month is 28th
+    formattedExpiryDate = `${expiryDate}-28`;
   } else if (expiryDate && expiryDate.split("-").length === 2) {
-    // If expiryDate is in 'YYYY-MM' format, append '-28' for day
     formattedExpiryDate = `${expiryDate}-28`;
   }
 
@@ -550,19 +547,15 @@ app.post("/completeOrder", (req, res) => {
     return res.status(400).send("Order ID, Cleaner ID, and Owner ID are required.");
   }
 
-  // SQL query to insert the order into the transaction table
   const query = `
     INSERT INTO transaction (idorder, idowner, idcleaner) 
     VALUES (?, ?, ?)`;
 
-  // Execute the query with the provided values
   db.query(query, [orderId, ownerId, cleanerId], (err, result) => {
     if (err) {
       console.error("Error inserting into transaction table:", err);
       return res.status(500).send("Failed to complete the order.");
     }
-
-    // Respond with success if the insert was successful
     res.send({ message: "Order completed successfully." });
   });
 });
@@ -570,11 +563,8 @@ app.post("/completeOrder", (req, res) => {
 
 app.get('/ownertransactions/:id', (req, res) => {
   const ownerId = req.params.id;
-
-  // SQL query to get transactions for the given owner
   const query = `
     SELECT
-      SELECT
       p.\`Property Name\`,
       r.\`Service date\`,
       u.\`First Name\`,
@@ -582,7 +572,8 @@ app.get('/ownertransactions/:id', (req, res) => {
       u.\`Phone Number\`, 
       o.idowner,
       o.idcleaner,
-      o.idorders
+      o.idorders,
+      r.\`Payment Amount\`
     FROM transaction t
     JOIN orders o ON t.idorder = o.idorders
     JOIN requests r ON o.idrequest = r.idrequest
@@ -596,8 +587,24 @@ app.get('/ownertransactions/:id', (req, res) => {
       console.error("Error fetching transactions:", err);
       return res.status(500).json({ error: "Failed to fetch transactions." });
     }
-
     res.json(results); // Send back the transaction data
+  });
+});
+
+app.post('/submitFeedback', (req, res) => {
+  const { orderId, cleanerId, ownerId, reliability, satisfaction, cleanliness, comment } = req.body;
+
+  console.log('Received Feedback:', req.body);
+  const query = `
+    INSERT INTO cleaner_rating (idorder, Comment, Reliability, Satisfaction, Cleanliness, idcleaner)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+  db.query(query, [orderId, comment, reliability, satisfaction, cleanliness, cleanerId], (err, result) => {
+    if (err) {
+      console.error('Error inserting feedback:', err);
+      return res.status(500).json({ error: 'Failed to submit feedback' });
+    }
+    res.status(200).json({ message: 'Feedback submitted successfully' });
   });
 });
 

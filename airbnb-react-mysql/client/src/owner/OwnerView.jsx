@@ -189,7 +189,7 @@ const OwnerView = () => {
     try {
       const res = await axios.get(`http://localhost:8800/ownerorders/${id}`); // Fetch orders by owner ID
       const orders = res.data;
-  
+      console.log(orders);
       setContent(
         <div style={{ textAlign: "left" }}>
           <div
@@ -296,19 +296,19 @@ const OwnerView = () => {
           {transactions.length > 0 ? (
             transactions.map((transaction) => (
               <div
-                key={transaction.idorder}
+                key={transaction.idorders}
                 style={{
                   border: "1px solid #ddd",
                   padding: "10px",
                   marginBottom: "15px",
                   textAlign: "left",
                   display: "flex",
-                  justifyContent: "space-between", // Add space between transaction details and button
+                  justifyContent: "space-between", // Space between transaction details and button
                   alignItems: "center", // Align items vertically
                 }}
               >
                 <p style={{ flex: 1 }}>
-                  <strong>Order ID:</strong> {transaction.idorder} |{" "}
+                  <strong>Order ID:</strong> {transaction.idorders} |{" "}
                   <strong>Property Name:</strong> {transaction["Property Name"]} |{" "}
                   <strong>Service Date:</strong>{" "}
                   {new Date(transaction["Service date"]).toLocaleDateString()} |{" "}
@@ -318,7 +318,24 @@ const OwnerView = () => {
                   <strong>Payment Amount:</strong> ${transaction["Payment Amount"]}
                 </p>
   
-                {/* You can add action buttons here if needed */}
+                {/* Rate Button */}
+                <button
+                  onClick={() => handleRate(transaction.idorders, transaction.idcleaner, transaction.idowner)}
+                  style={{
+                    backgroundColor: "#007BFF", // Blue background color
+                    color: "#fff",
+                    padding: "10px 20px",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    transition: "background-color 0.3s", // Smooth transition for hover effect
+                  }}
+                  onMouseOver={(e) => (e.target.style.backgroundColor = "#0056b3")} // Change on hover
+                  onMouseOut={(e) => (e.target.style.backgroundColor = "#007BFF")} // Reset hover color
+                >
+                  Rate the cleaner
+                </button>
               </div>
             ))
           ) : (
@@ -333,6 +350,13 @@ const OwnerView = () => {
     }
   };
   
+  // Handle Rate (for demonstration)
+  const handleRate = (orderId, cleanerId, ownerId) => {
+    console.log("Rate Order ID:", orderId);
+    console.log("Rate cleaner ID:", cleanerId);
+    console.log("Rate owner ID:", ownerId);
+    navigate(`/callRateCleaner/${orderId}/${cleanerId}/${ownerId}`);
+  };
   
   const handlePaymentMethods = async (e) => {
     e.preventDefault();

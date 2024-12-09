@@ -12,7 +12,7 @@ const ViewBids = () => {
       try {
         const res = await axios.get(`http://localhost:8800/viewBids/${requestId}`);
         setBids(res.data);
-        console.log(res.data);
+        console.log(res.data); // Check the response structure
       } catch (err) {
         console.error("Error fetching bids:", err);
         setError("Something went wrong while fetching the bid data.");
@@ -24,13 +24,13 @@ const ViewBids = () => {
 
   const handleAcceptBid = async (idcleaner, idowner) => {
     try {
-        console.log("Owner ID:", idowner);
-        console.log("cleaner ID:", idcleaner);
-        console.log("Request ID:", requestId);
+      console.log("Owner ID:", idowner);
+      console.log("Cleaner ID:", idcleaner);
+      console.log("Request ID:", requestId);
 
-        const res = await axios.post(`http://localhost:8800/acceptBid/`, {requestId, idcleaner, idowner});
-        
-      setBids(bids.map(bid => 
+      const res = await axios.post(`http://localhost:8800/acceptBid/`, { requestId, idcleaner, idowner });
+
+      setBids(bids.map((bid) => 
         bid.idcleaner === idcleaner ? { ...bid, accepted: true } : bid
       ));
 
@@ -50,9 +50,7 @@ const ViewBids = () => {
         {error ? (
           <p className="error-message">{error}</p>
         ) : bids.length > 0 ? (
-          bids.map((bid) => {
-            console.log("Bid object:", bid);
-            return (
+          bids.map((bid) => (
             <div
               key={bid.idcleaner}
               style={{
@@ -70,7 +68,10 @@ const ViewBids = () => {
                 <strong>Payment Amount:</strong> {bid.paymentAmount} |{" "}
                 <strong>Service Description:</strong> {bid.serviceDescription || "N/A"} |{" "}
                 <strong>Service Date:</strong>{" "}
-                {new Date(bid.serviceDate).toLocaleDateString()}
+                {new Date(bid.serviceDate).toLocaleDateString()} |{" "}
+                <strong>Reliability:</strong> {bid.avgReliability} |{" "}
+                <strong>Satisfaction:</strong> {bid.avgSatisfaction} |{" "}
+                <strong>Cleanliness:</strong> {bid.avgCleanliness}
               </p>
               <button
                 onClick={() => handleAcceptBid(bid.idcleaner, bid.idowner)}
@@ -87,8 +88,7 @@ const ViewBids = () => {
                 {bid.accepted ? "Accepted" : "Accept"}
               </button>
             </div>
-          );
-})
+          ))
         ) : (
           <p>No bids found for this request.</p>
         )}

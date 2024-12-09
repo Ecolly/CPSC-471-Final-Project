@@ -13,6 +13,9 @@ import UpdateCleaner from "./cleaner/UpdateCleaner";
 import BottomDecoration from "./pages/Decor";
 import AddPaymentMethod from "./owner/AddPaymentMethod"
 import UpdateRequest from "./owner/UpdateRequest"
+import RateCleaner from "./owner/RateCleaner"
+import Callbackrate from "./owner/Callbackrate"
+
 function App() {
   return (
     <div className="app">
@@ -32,6 +35,8 @@ function App() {
           <Route path ="/viewPayments/:id" element={<handlePaymentMethods/>}/> 
           <Route path ="/addPaymentMethod/:id" element={<AddPaymentMethod/>}/> 
           <Route path ="/updateRequest/:id" element={<UpdateRequest/>}/>
+          <Route path ="/rateCleaner/:orderid" element={<RateCleaner/>}/>
+          <Route path="/callRateCleaner/:orderId/:cleanerId/:ownerId" element={<Callbackrate/>} />
         </Routes>
       </BrowserRouter>
     </div>
