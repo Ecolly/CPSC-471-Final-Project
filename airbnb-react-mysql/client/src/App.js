@@ -29,7 +29,6 @@ function App() {
           <Route path ="/viewBids/:requestId" element={<ViewBids/>}/> 
         </Routes>
       </BrowserRouter>
-      <BottomDecoration />
     </div>
   );
 }

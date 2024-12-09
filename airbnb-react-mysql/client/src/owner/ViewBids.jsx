@@ -12,6 +12,7 @@ const ViewBids = () => {
       try {
         const res = await axios.get(`http://localhost:8800/viewBids/${requestId}`);
         setBids(res.data);
+        console.log(res.data);
       } catch (err) {
         console.error("Error fetching bids:", err);
         setError("Something went wrong while fetching the bid data.");
@@ -20,6 +21,25 @@ const ViewBids = () => {
 
     fetchBids();
   }, [requestId]);
+
+  const handleAcceptBid = async (idcleaner, idowner) => {
+    try {
+        console.log("Owner ID:", idowner);
+        console.log("cleaner ID:", idcleaner);
+        console.log("Request ID:", requestId);
+
+        const res = await axios.post(`http://localhost:8800/acceptBid/`, {requestId, idcleaner, idowner});
+        
+      setBids(bids.map(bid => 
+        bid.idcleaner === idcleaner ? { ...bid, accepted: true } : bid
+      ));
+
+      alert("Bid accepted!");
+    } catch (err) {
+      console.error("Error accepting bid:", err);
+      setError("Something went wrong while accepting the bid.");
+    }
+  };
 
   return (
     <div className="view-bidding-container">
@@ -30,7 +50,9 @@ const ViewBids = () => {
         {error ? (
           <p className="error-message">{error}</p>
         ) : bids.length > 0 ? (
-          bids.map((bid) => (
+          bids.map((bid) => {
+            console.log("Bid object:", bid);
+            return (
             <div
               key={bid.idcleaner}
               style={{
@@ -38,17 +60,35 @@ const ViewBids = () => {
                 padding: "10px",
                 marginBottom: "15px",
                 textAlign: "left",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
               }}
             >
-              <p>
+              <p style={{ marginRight: "10px" }}>
                 <strong>Cleaner Name:</strong> {bid.firstName} |{" "}
                 <strong>Payment Amount:</strong> {bid.paymentAmount} |{" "}
                 <strong>Service Description:</strong> {bid.serviceDescription || "N/A"} |{" "}
                 <strong>Service Date:</strong>{" "}
                 {new Date(bid.serviceDate).toLocaleDateString()}
               </p>
+              <button
+                onClick={() => handleAcceptBid(bid.idcleaner, bid.idowner)}
+                disabled={bid.accepted} // Disable button if the bid is already accepted
+                style={{
+                  backgroundColor: "#28a745", // Green for accept
+                  color: "#fff",
+                  border: "none",
+                  padding: "8px 15px",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+              >
+                {bid.accepted ? "Accepted" : "Accept"}
+              </button>
             </div>
-          ))
+          );
+})
         ) : (
           <p>No bids found for this request.</p>
         )}

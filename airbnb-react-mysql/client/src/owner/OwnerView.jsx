@@ -181,56 +181,51 @@ const OwnerView = () => {
       setContent("Something went wrong while fetching the request data.");
     }
   };
-  
-  
+    
 
-  const handleOrderHistory = async () => {
+  const handleOrderHistory = async (e) => {
+    e.preventDefault();
     try {
-      const res = await axios.get(`http://localhost:8800/ownerorders${id}`);
+      const res = await axios.get(`http://localhost:8800/ownerorders/${id}`); // Fetch orders by owner ID
       const orders = res.data;
   
       setContent(
-        <div>
-        <h2>Orders</h2>
-        {orders.length > 0 ? (
-          <table>
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>Request ID</th>
-                <th>Owner ID</th>
-                <th>Owner ID</th>
-                <th>Service Description</th>
-                <th>Service Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr key={order.idorders}>
-                  <td>{order.idorders}</td>
-                  <td>{order.idrequest}</td>
-                  <td>{order.idcleaner}</td>
-                  <td>{order.idowner}</td>
-                  <td>{order.service_description || "N/A"}</td>
-                  <td>
-                    {order.service_date
-                      ? new Date(order.service_date).toLocaleDateString()
-                      : "N/A"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No orders available.</p>
-        )}
-      </div>
-  );
+        <div style={{ textAlign: "left" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <h3>Owner's Orders</h3>
+          </div>
+          {orders.length > 0 ? (
+            orders.map((order) => (
+              <div
+                key={order.idorders}
+                style={{
+                  border: "1px solid #ddd",
+                  padding: "10px",
+                  marginBottom: "15px",
+                  textAlign: "left",
+                }}
+              >
+                <p>
+                  <strong>Property Name:</strong> {order["Property Name"]} |{" "}
+                  <strong>Service Date:</strong> {new Date(order["Service date"]).toLocaleDateString()} |{" "}
+                  <strong>Cleaner:</strong> {order["First Name"]} {order["Last Name"]} |{" "}
+                  <strong>Phone Number:</strong> {order["Phone Number"]} |{" "}
+                  <strong>Payment Amount:</strong> ${order["Payment Amount"]}
+                </p>
+              </div>
+            ))
+          ) : (
+            <p>No orders found for this owner.</p>
+          )}
+        </div>
+      );
     } catch (err) {
-      console.error("Failed to fetch orders:", err);
-      setContent("Something went wrong while fetching the orders.");
+      console.error("Error fetching orders:", err.response || err.message);
+      setError(true);
+      setContent("Something went wrong while fetching the order data.");
     }
   };
+  
   
 
   //show the inital page
