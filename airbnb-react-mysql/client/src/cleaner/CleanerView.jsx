@@ -110,9 +110,9 @@ const CleanerView = () => {
   const handleRatingSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`http://localhost:8800/ownerRating`, {
+      await axios.put(`http://localhost:8800/ownerRating`, {
         ...ratingData,
-        idorders: ratingOrderId,
+        idorder: ratingOrderId,
       });
       setContent(
         <div>
@@ -165,7 +165,7 @@ const CleanerView = () => {
     try {
       const res = await axios.get(`http://localhost:8800/jobBoard/${id}`);
       const jobs = res.data;
-      setTransactions([]); // 清空Transaction以隐藏
+      setTransactions([]); 
       setContent(
         <div>
           <h3>Job Board</h3>
@@ -174,13 +174,13 @@ const CleanerView = () => {
               <thead>
                 <tr>
                   <th>Request ID</th>
-                  <th>First Name</th>
-                  <th>Last Name</th>
+                  <th>Owner's Name</th>
+                  <th>Owner's Rating</th>
                   <th>Property Name</th>
                   <th>Street</th>
                   <th>City</th>
                   <th>Type</th>
-                  <th>Payment Amount</th>
+                  <th>Order Amount</th>
                   <th>Payment Type</th>
                   <th>Service Description</th>
                   <th>Service Date</th>
@@ -191,8 +191,11 @@ const CleanerView = () => {
                 {jobs.map((job) => (
                   <tr key={job.idrequest}>
                     <td>{job.idrequest}</td>
-                    <td>{job["First Name"] || "N/A"}</td>
-                    <td>{job["Last Name"] || "N/A"}</td>
+                    <td>{`${job["First Name"] || "N/A"} ${job["Last Name"] || "N/A"}`} </td>
+                    <td>
+                      {job["Overall Rating"] 
+                        ? parseFloat(job["Overall Rating"]).toFixed(1) : "N/A"}
+                    </td>
                     <td>{job["Property Name"] || "N/A"}</td>
                     <td>{job.Street || "N/A"}</td>
                     <td>{job.City || "N/A"}</td>

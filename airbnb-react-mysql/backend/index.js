@@ -498,6 +498,35 @@ app.get("/cleanerView/:id", (req, res) => {
   });
 });
 
+
+//Update Owner Rating
+app.put("/ownerRating", (req, res) => {
+  const { idorder, behavior, professionalism, overallScore, comment } = req.body;
+
+  const q = `
+    UPDATE airbnbnetwork.owner_rating
+    SET
+      behavior = ?,
+      professionalism = ?,
+      \`overall score\` = ?,
+      comment = ?
+    WHERE idorder = ?;
+  `;
+
+  const values = [behavior, professionalism, overallScore, comment, idorder];
+
+  db.query(q, values, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Something went wrong while updating the rating." });
+    }
+    console.log(data);
+    return res.json({ message: "Rating updated successfully!", data });
+  });
+});
+
+
+
 //Job Board information
 app.get("/jobBoard/:id", (req, res) => {
   const userId = req.params.id;
@@ -506,6 +535,7 @@ app.get("/jobBoard/:id", (req, res) => {
         r.idrequest,
         u.\`First Name\`,
         u.\`Last Name\`,
+        AVG(orating.\`Overall Score\`) as \`Overall Rating\`,
         p.\`Property Name\`,
         p.Street,
         p.City,
@@ -519,9 +549,22 @@ app.get("/jobBoard/:id", (req, res) => {
       JOIN bnbowner bo ON r.ownerid = bo.idbnbowner
       JOIN users u ON bo.idbnbowner = u.idusers
       JOIN property p ON r.propertyid = p.idproperty
+      LEFT JOIN owner_rating orating ON r.ownerid = orating.idowner
       LEFT JOIN bid b ON r.idrequest = b.idreqest
       WHERE r.idrequest NOT IN (SELECT idrequest FROM orders) 
-      GROUP BY r.idrequest
+      GROUP BY 
+        r.idrequest,
+        u.\`First Name\`,
+        u.\`Last Name\`,
+        p.\`Property Name\`,
+        p.Street,
+        p.City,
+        p.Type,
+        r.\`Service date\`,
+        r.\`Payment Amount\`,
+        r.\`Payment Type\`,
+        r.\`Service Description\`,
+        r.create_time
       ORDER BY r.\`Service date\``;
   db.query(q, (err, data) => {
     if (err) {
@@ -533,7 +576,7 @@ app.get("/jobBoard/:id", (req, res) => {
       ...row,
       paymentAmount: parseFloat(row["paymentAmount"]),
     }));
-
+    //console.log(formattedData);
     res.json(formattedData);
   });
 });
