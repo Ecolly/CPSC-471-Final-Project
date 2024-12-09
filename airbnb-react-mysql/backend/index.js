@@ -9,7 +9,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "root",
+  password: "Thisisannoying1!?",
   database: "airbnbnetwork",
 });
 
@@ -206,6 +206,11 @@ app.get("/requestsView/:ownerId", (req, res) => {
       property p ON r.propertyid = p.idproperty -- Join the property table
     WHERE 
       r.ownerid = ?
+      AND NOT EXISTS(
+        SELECT 1
+        FROM orders o
+        WHERE o.idrequest = r.idrequest
+      )
   `;
 
   db.query(query, [ownerId], (err, rows) => {
@@ -462,7 +467,13 @@ app.get('/ownerorders/:id', (req, res) => {
     JOIN property p ON r.propertyid = p.idproperty
     JOIN cleaner c ON o.idcleaner = c.idcleaner
     JOIN users u ON c.idcleaner = u.idusers
-    WHERE o.idowner = ?`;
+    WHERE o.idowner = ?
+    AND NOT EXISTS(
+        SELECT 1
+        FROM transaction t
+        WHERE o.idorders = t.idorder
+      )
+    `;
 
   db.execute(query, [ownerId], (err, results) => {
     if (err) {
