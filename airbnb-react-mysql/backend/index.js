@@ -9,7 +9,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "root",
+  password: "Thisisannoying1!?",
   database: "airbnbnetwork",
 });
 
@@ -188,7 +188,6 @@ app.post("/addProperty/:ownerId", (req, res) => {
 });
 
 
-
 app.get("/requestsView/:ownerId", (req, res) => {
   const { ownerId } = req.params;
 
@@ -252,6 +251,8 @@ app.get("/viewBids/:requestId", (req, res) => {
   // SQL query to fetch the bid details
   const query = `
   SELECT 
+    c.idcleaner AS idcleaner,
+    r.ownerid as idowner,
     u.\`First Name\` AS firstName, 
     b.idreqest AS requestId, 
     c.\`Bank Account #\` AS bankAccount, 
@@ -355,6 +356,57 @@ app.put("/ownerView/:id", (req, res) => {
     return res.json({ message: "Profile updated successfully!", data });
   });
 });
+
+app.post("/acceptBid", (req, res) => {
+  const { requestId, idcleaner, idowner} = req.body;
+  if (!requestId || !idcleaner) {
+    return res.status(400).send("Missing requestId or bidId.");
+  }
+  // SQL query to insert data into the order table
+  const query = `
+    INSERT INTO orders (idrequest, idcleaner, idowner) 
+    VALUES (?, ?, ?)
+  `;
+
+  db.execute(query, [requestId, idcleaner, idowner], (err, results) => {
+    if (err) {
+      console.error("Error inserting into orders table:", err);
+      return res.status(500).json({ error: "Failed to accept bid and insert into orders." });
+    }
+    res.status(201).json({ message: "Bid accepted and order created successfully!" });
+  });
+});
+
+app.get('/ownerorders/:id', (req, res) => {
+  const ownerId = req.params.id;  // Get the ownerId from the URL parameter
+
+  const query = `
+    SELECT
+      p.\`Property Name\`,
+      r.\`Service date\`,
+      u.\`First Name\`,
+      u.\`Last Name\`,
+      u.\`Phone Number\`,  -- Assuming 'Phone Number' exists in the 'users' table
+      r.\`Payment Amount\`
+    FROM \`orders\` o
+    JOIN \`requests\` r ON o.\`idrequest\` = r.\`idrequest\`
+    JOIN \`property\` p ON r.\`propertyid\` = p.\`idproperty\`
+    JOIN \`cleaner\` c ON o.\`idcleaner\` = c.\`idcleaner\`
+    JOIN \`users\` u ON c.\`idcleaner\` = u.\`idusers\`
+    WHERE o.\`idowner\` = ?`;
+
+  // Execute the query
+  db.execute(query, [ownerId], (err, results) => {
+    if (err) {
+      console.error("Error fetching data:", err);
+      return res.status(500).send("Error fetching data.");
+    }
+
+    // Return the results to the client
+    res.json(results);
+  });
+});
+
 
 ////////////////////////////////////////////////////////////
 app.get("/", (req, res) => {
@@ -717,6 +769,9 @@ app.post("/cleanerView:id", (req, res) => {
     return res.json(data);
   });
 });
+
+
+
 
 
 ////////////////////////////general pages//////////////////////////////
