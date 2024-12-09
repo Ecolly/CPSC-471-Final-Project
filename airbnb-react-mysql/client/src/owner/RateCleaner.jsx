@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./StarRating.css"; // Make sure to link your CSS file
+import "./StarRating.css";
 
 const RateCleaner = ({ onRate, onSubmit }) => {
   // State for each rating category and comment
@@ -8,16 +8,14 @@ const RateCleaner = ({ onRate, onSubmit }) => {
   const [cleanlinessRating, setCleanlinessRating] = useState(0);
   const [comment, setComment] = useState(""); // Store comment
 
-  // Separate hover states for each category
   const [hoveredReliability, setHoveredReliability] = useState(0);
   const [hoveredSatisfaction, setHoveredSatisfaction] = useState(0);
   const [hoveredCleanliness, setHoveredCleanliness] = useState(0);
 
-  // Handle clicking on a star for rating
   const handleClick = (category, ratingValue) => {
     if (category === "reliability") {
       setReliabilityRating(ratingValue);
-      onRate("reliability", ratingValue); // Call the parent function to save the rating
+      onRate("reliability", ratingValue);
     } else if (category === "satisfaction") {
       setSatisfactionRating(ratingValue);
       onRate("satisfaction", ratingValue);
@@ -38,7 +36,6 @@ const RateCleaner = ({ onRate, onSubmit }) => {
     }
   };
 
-  // Reset hover on mouse leave for each category
   const handleMouseLeave = (category) => {
     if (category === "reliability") {
       setHoveredReliability(0);
@@ -61,7 +58,7 @@ const RateCleaner = ({ onRate, onSubmit }) => {
           onMouseEnter={() => handleMouseEnter(category, i)}
           onMouseLeave={() => handleMouseLeave(category)}
         >
-          &#9733; {/* Unicode star symbol */}
+          &#9733; {}
         </span>
       );
     }
@@ -99,12 +96,12 @@ const RateCleaner = ({ onRate, onSubmit }) => {
         />
       </div>
 
-      {/* Submit Button */}
+      {}
       <div style={{ marginTop: "20px" }}>
         <button
           onClick={() => onSubmit(reliabilityRating, satisfactionRating, cleanlinessRating, comment)}
           style={{
-            backgroundColor: "#007BFF", // Blue color
+            backgroundColor: "#007BFF",
             color: "#fff",
             padding: "10px 20px",
             border: "none",

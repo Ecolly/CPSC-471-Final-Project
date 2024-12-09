@@ -15,11 +15,11 @@
 .rating-category {
   margin-bottom: 20px;
   display: flex;
-  align-items: center; /* Align stars and category name horizontally */
+  align-items: center; 
 }
 
 .category-name {
-  margin-right: 10px; /* Space between category name and stars */
+  margin-right: 10px; 
   font-size: 18px;
   font-weight: bold;
 }

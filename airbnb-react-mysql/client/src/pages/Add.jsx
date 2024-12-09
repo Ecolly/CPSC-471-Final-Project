@@ -17,6 +17,8 @@ const Add = () => {
     phoneNumber: "",
     gender: "",
     dateOfBirth: "",
+    cleaningTools:"",
+    bankAccount:"",
   });
   const [error,setError] = useState(false)
 
@@ -117,6 +119,24 @@ const Add = () => {
         <option value="cleaner">Cleaner</option>
         <option value="owner">Owner</option>
       </select>
+      {book.role === "cleaner" && (
+        <>
+          <input
+            type="text"
+            placeholder="Bank Account Number"
+            name="bankAccount"
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="text"
+            placeholder="Cleaning Tools"
+            name="cleaningTools"
+            onChange={handleChange}
+            required
+          />
+        </>
+      )}
       <button onClick={handleClick}>Add</button>
       {error && "Something went wrong!"}
     </div>

@@ -1075,8 +1075,15 @@ app.post("/register", (req, res) => {
     gender,
     dateOfBirth,
     role, // This should come from the dropdown
+    bankAccount,
+    cleaningTools
   } = req.body;
-  
+
+  // Validate required fields
+  if (!role) {
+    return res.status(400).json({ error: "Role is required" });
+  }
+
   const q = `
   INSERT INTO users(
     \`First Name\`, 
@@ -1108,51 +1115,58 @@ app.post("/register", (req, res) => {
     dateOfBirth,
   ];
 
-// Extracting values from the request body
-
-
   db.query(q, userValues, (err, data) => {
     if (err) {
       console.log(err);
-      return res.status(err);
+      return res.status(500).json({ error: "Database query error" });
     }
-    const personID = data.insertId;
-    console.log("Role value:", role); // Check what value `role` actually holds
+    const personID = data.insertId; 
+    console.log("Role value:", role); 
 
-    let roleQuery = "";
-    if (role == "cleaner") {
-      roleQuery = "INSERT INTO cleaner (idcleaner) VALUES (?)";
-    } else {
-      roleQuery = "INSERT INTO bnbowner (idbnbowner) VALUES (?)";
-    }
-
-    db.query(roleQuery, [personID], (err) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json("Error saving user to role table");
+    if (role === "cleaner") {
+      if (!cleaningTools) {
+        return res.status(400).json({ error: "Cleaning tools are required for cleaners" });
       }
-      res.status(200).json("User registered successfully");
-    });
+
+      const roleQuery = "INSERT INTO cleaner (idcleaner, \`Bank Account #\`) VALUES (?, ?)";
+      const cleanerValues = [personID, bankAccount];
+
+      db.query(roleQuery, cleanerValues, (err) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({ error: "Failed to insert into cleaner table" });
+        }
+
+        // Insert into cleaning_tools table
+        const toolsQuery = "INSERT INTO cleaning_tools (idcleaner, \`Cleaning Tools\`) VALUES (?, ?)";
+        const toolsValues = [personID, cleaningTools];
+
+        db.query(toolsQuery, toolsValues, (err) => {
+          if (err) {
+            console.log(err);
+            return res.status(500).json({ error: "Failed to insert into cleaning_tools table" });
+          }
+
+          res.status(201).json({ message: "Cleaner and tools registered successfully!" });
+        });
+      });
+    } else {
+
+      const roleQuery = "INSERT INTO bnbowner (idbnbowner) VALUES (?)";
+      const ownerValues = [personID];
+
+      db.query(roleQuery, ownerValues, (err) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({ error: "Failed to insert into bnbowner table" });
+        }
+
+        res.status(201).json({ message: "Owner registered successfully!" });
+      });
+    }
   });
 });
 
-
-app.put("/books/:id", (req, res) => {
-  const bookId = req.params.id;
-  const q = "UPDATE books SET `title`= ?, `desc`= ?, `price`= ?, `cover`= ? WHERE id = ?";
-
-  const values = [
-    req.body.title,
-    req.body.desc,
-    req.body.price,
-    req.body.cover,
-  ];
-
-  db.query(q, [...values,bookId], (err, data) => {
-    if (err) return res.send(err);
-    return res.json(data);
-  });
-});
 
 //connects to backend with this port 
 app.listen(8800, () => {
