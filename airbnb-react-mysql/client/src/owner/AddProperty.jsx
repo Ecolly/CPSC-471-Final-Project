@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./UpdateOwner.css"; // Link to CSS file
+import "./UpdateOwner.css";
 
 const AddProperty = () => {
   const { id } = useParams();
@@ -28,7 +28,7 @@ const AddProperty = () => {
     e.preventDefault();
     try {
       await axios.post(`http://localhost:8800/addProperty/${id}`, formData);
-      navigate(`/ownerView/${id}`); // Redirect to the main owner view or properties list
+      navigate(`/ownerView/${id}`); 
     } catch (err) {
       console.error("Error adding property:", err);
       alert("Failed to add property.");

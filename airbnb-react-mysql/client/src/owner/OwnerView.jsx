@@ -11,10 +11,8 @@ const OwnerView = () => {
   const [ownerFname, setOwnersFirstName] = useState(null)
   const [content, setContent] = useState(null);
   const navigate = useNavigate(); 
-  const [currentSection, setCurrentSection] = useState('profile'); 
 
-
-
+  //View properties, add button for add property
   const handleViewProperties = async (e) => {
     e.preventDefault();
     try {
@@ -85,7 +83,7 @@ const OwnerView = () => {
   };
   
 
-  //
+  //View Request Section
   const handleViewRequests = async (e) => {
     e.preventDefault();
     try {
@@ -183,7 +181,7 @@ const OwnerView = () => {
     }
   };
     
-
+  //view orders
   const handleOrderHistory = async (e) => {
     e.preventDefault();
     try {
@@ -262,7 +260,6 @@ const OwnerView = () => {
     console.log("Complete Order ID:", orderId);
   
     try {
-      // Sending the orderId to the backend to add it to the transaction table
       const res = await axios.post(`http://localhost:8800/completeOrder`, { orderId, cleanerId, ownerId});
   
       console.log("Order completed:", res.data);
@@ -273,7 +270,7 @@ const OwnerView = () => {
   };
 
 
-  //set transaction
+  //view transactions
   const handleTransactions = async (e) => {
     e.preventDefault();
     try {
@@ -320,17 +317,17 @@ const OwnerView = () => {
                 <button
                   onClick={() => handleRate(transaction.idorders, transaction.idcleaner, transaction.idowner)}
                   style={{
-                    backgroundColor: "#007BFF", // Blue background color
+                    backgroundColor: "#007BFF", 
                     color: "#fff",
                     padding: "10px 20px",
                     border: "none",
                     borderRadius: "5px",
                     cursor: "pointer",
                     fontSize: "14px",
-                    transition: "background-color 0.3s", // Smooth transition for hover effect
+                    transition: "background-color 0.3s", 
                   }}
-                  onMouseOver={(e) => (e.target.style.backgroundColor = "#0056b3")} // Change on hover
-                  onMouseOut={(e) => (e.target.style.backgroundColor = "#007BFF")} // Reset hover color
+                  onMouseOver={(e) => (e.target.style.backgroundColor = "#0056b3")} 
+                  onMouseOut={(e) => (e.target.style.backgroundColor = "#007BFF")} 
                 >
                   Rate the cleaner
                 </button>
@@ -348,7 +345,7 @@ const OwnerView = () => {
     }
   };
   
-  // Handle Rate (for demonstration)
+  // Handle Rates, rate the cleaner from the owners perspective
   const handleRate = (orderId, cleanerId, ownerId) => {
     console.log("Rate Order ID:", orderId);
     console.log("Rate cleaner ID:", cleanerId);

@@ -4,11 +4,9 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const Callbackrate = () => {
-  // Destructure the parameters from the URL
   const { orderId, cleanerId, ownerId } = useParams();
 
   console.log("Received Parameters:", { orderId, cleanerId, ownerId });
-
   const navigate = useNavigate();
   
   const [ratings, setRatings] = useState({
@@ -19,18 +17,19 @@ const Callbackrate = () => {
 
   const [comment, setComment] = useState("");
 
-  // Callback to handle individual ratings
+  //it updates the ratings using the setState pattern
+  //rating is initialized a object that holds values for different categories
   const handleRate = (category, ratingValue) => {
     setRatings((prev) => ({
       ...prev,
       [category]: ratingValue,
     }));
   };
+  //handle rate inserts the category and the rating value, it receives one another another
 
-  // Callback to handle form submission
+  //submit these fields for updates
   const handleSubmit = async () => {
     const { reliability, satisfaction, cleanliness } = ratings;
-
     console.log("Ratings Submitted:", {
       orderId,
       cleanerId,
@@ -51,15 +50,11 @@ const Callbackrate = () => {
         comment,
       };
 
-      // Submit the data to the backend
       const response = await axios.post(endpoint, formData);
       console.log("Response from server:", response);
-
-      // Navigate to the owner's main view
       navigate(`/ownerView/${ownerId}`);
     } catch (error) {
       console.error("Error:", error);
-      alert("Something went wrong while submitting your feedback.");
     }
   };
 

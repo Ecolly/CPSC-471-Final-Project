@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./UpdateOwner.css"; // Link to CSS file
+import "./UpdateOwner.css"; 
 
 const AddPaymentMethod = () => {
-  const { id } = useParams(); // Get ownerId from URL params
+  const { id } = useParams(); 
   const navigate = useNavigate();
   
-  // Form data state for payment methods
   const [formData, setFormData] = useState({
     idowner: id,  // Set owner ID from URL
     paymentMethod: "Credit Card",  // Default to Credit Card
@@ -15,7 +14,7 @@ const AddPaymentMethod = () => {
     cardName: "",
     billingAddress: "",
     expiryDate: "",
-    accountNumber: "", // For PayPal
+    accountNumber: "",
   });
 
   const handleChange = (e) => {
@@ -37,7 +36,7 @@ const AddPaymentMethod = () => {
       }
 
       await axios.post(endpoint, formData);
-      navigate(`/ownerView/${id}`); // Redirect to the owner's main view
+      navigate(`/ownerView/${id}`);
     } catch (err) {
       console.error("Error adding payment method:", err);
       alert("Failed to add payment method.");

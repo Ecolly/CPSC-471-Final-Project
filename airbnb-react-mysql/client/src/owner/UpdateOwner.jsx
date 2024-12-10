@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./UpdateOwner.css"; // Link to CSS file
+import "./UpdateOwner.css"; 
 
+//owner update
 const UpdateOwner = () => {
   const { id } = useParams();
   const navigate = useNavigate();

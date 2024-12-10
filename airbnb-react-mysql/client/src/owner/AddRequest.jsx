@@ -43,7 +43,7 @@ const AddRequest = () => {
     e.preventDefault();
     try {
       await axios.post(`http://localhost:8800/addRequest/${id}`, formData);
-      navigate(`/ownerView/${id}`); // Redirect to owner view
+      navigate(`/ownerView/${id}`);
     } catch (err) {
       console.error("Error adding request:", err);
       alert("Failed to add request.");
@@ -54,7 +54,7 @@ const AddRequest = () => {
     <div className="add-request-container">
       <h2 className="add-request-title">Make Request</h2>
       <form onSubmit={handleSave} className="add-request-form">
-        {/* Property Selector */}
+        {/* property select */}
         <div className="form-group-horizontal">
           <label htmlFor="propertyId" className="form-label">Property:</label>
           <select
@@ -136,7 +136,7 @@ const AddRequest = () => {
           />
         </div>
 
-        {/* Submit Button */}
+        {/* Submit Button, type submit, triggers onSubmit above to handlesave */}
         <button type="submit" className="save-button">Add Request</button>
       </form>
     </div>

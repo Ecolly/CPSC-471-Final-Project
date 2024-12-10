@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 
 const ViewBids = () => {
-  const { requestId } = useParams(); // Assuming the request ID is passed as a parameter
+  const { requestId } = useParams(); //request ID is passed as a parameter
   const [bids, setBids] = useState([]);
   const [error, setError] = useState(null);
 
@@ -12,7 +12,7 @@ const ViewBids = () => {
       try {
         const res = await axios.get(`http://localhost:8800/viewBids/${requestId}`);
         setBids(res.data);
-        console.log(res.data); // Check the response structure
+        console.log(res.data); // Debugging purposes
       } catch (err) {
         console.error("Error fetching bids:", err);
         setError("Something went wrong while fetching the bid data.");
@@ -77,7 +77,7 @@ const ViewBids = () => {
                 onClick={() => handleAcceptBid(bid.idcleaner, bid.idowner)}
                 disabled={bid.accepted} // Disable button if the bid is already accepted
                 style={{
-                  backgroundColor: "#28a745", // Green for accept
+                  backgroundColor: "#28a745",
                   color: "#fff",
                   border: "none",
                   padding: "8px 15px",

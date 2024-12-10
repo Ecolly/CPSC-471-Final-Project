@@ -25,7 +25,6 @@ const RateCleaner = ({ onRate, onSubmit }) => {
     }
   };
 
-  // Handle hover over star for each category
   const handleMouseEnter = (category, ratingValue) => {
     if (category === "reliability") {
       setHoveredReliability(ratingValue);

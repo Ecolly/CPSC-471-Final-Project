@@ -19,7 +19,7 @@ const UpdateRequest = () => {
   const fetchPaymentOptions = async () => {
     try {
       const res = await axios.get(`http://localhost:8800/paymentOptions/${id}`);
-      setPaymentOptions(res.data); // Store full objects from the backend
+      setPaymentOptions(res.data); 
     } catch (err) {
       console.error("Error fetching payment options:", err);
     }

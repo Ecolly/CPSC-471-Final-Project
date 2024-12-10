@@ -13,12 +13,10 @@ const db = mysql.createConnection({
   database: "airbnbnetwork",
 });
 
-//this gets a request from the user and send a response
-// app.get("/", (req, res) => {
-//   res.json("hello");
-// });
 
-////////////////Owner Gets////////////////////////////////////
+////////////////Owner Backend////////////////////////////////////
+
+//get the information associated with the iduser
 app.get("/ownerView/:id", (req, res) => {
   const userId = req.params.id; 
   const query = "SELECT * FROM users WHERE idusers = ?"; // Query to fetch all data from 'users' table
@@ -59,7 +57,7 @@ app.get("/propertyView/:ownerId", (req, res) => {
   });
 });
 
-//get property information depending on property id
+//get property information depending on property id (for pre-filling form purposes)
 app.get("/IDpropertyView/:propertyid", (req, res) => {
   const { propertyid } = req.params;
   const query = `
@@ -85,6 +83,7 @@ app.get("/IDpropertyView/:propertyid", (req, res) => {
   });
 });
 
+//update a property's information
 app.put("/updatePropertyView/:propertyId", (req, res) => {
   const { propertyId } = req.params;
   const {
@@ -132,7 +131,7 @@ app.put("/updatePropertyView/:propertyId", (req, res) => {
   });
 });
 
-
+//add a property
 app.post("/addProperty/:ownerId", (req, res) => {
   const { ownerId } = req.params; // Extract owner ID from URL
   const {
@@ -187,7 +186,7 @@ app.post("/addProperty/:ownerId", (req, res) => {
   );
 });
 
-
+//get all the requests made by the owner
 app.get("/requestsView/:ownerId", (req, res) => {
   const { ownerId } = req.params;
 
@@ -211,7 +210,7 @@ app.get("/requestsView/:ownerId", (req, res) => {
         FROM orders o
         WHERE o.idrequest = r.idrequest
       )
-  `;
+  `; //it excludes the idrequests that are in the order table
 
   db.query(query, [ownerId], (err, rows) => {
     if (err) {
@@ -227,7 +226,7 @@ app.get("/requestsView/:ownerId", (req, res) => {
   });
 });
 
-//add a request:
+//Make a request
 app.post("/addRequest/:ownerId", (req, res) => {
   const ownerId = req.params.ownerId;
   const { propertyId, paymentAmount, paymentType, serviceDescription, serviceDate } = req.body;
@@ -249,11 +248,9 @@ app.post("/addRequest/:ownerId", (req, res) => {
 });
 
 //viewe bids on request
-
 app.get("/viewBids/:requestId", (req, res) => {
   const { requestId } = req.params;
 
-  // SQL query to fetch the bid details
   const query = `
     SELECT 
       c.idcleaner AS idcleaner,
@@ -280,13 +277,13 @@ app.get("/viewBids/:requestId", (req, res) => {
       console.error("Error fetching bids:", err);
       return res.status(500).send("Something went wrong while fetching the bid data.");
     }
-    res.json(results); // Return the fetched data as JSON
+    res.json(results);
   });
 });
 
 
 
-//owner's payment options for the select part
+//owner's payment options for the selection part
 app.get("/paymentOptions/:ownerId", (req, res) => {
   const ownerId = req.params.ownerId;
 
@@ -307,10 +304,10 @@ app.get("/paymentOptions/:ownerId", (req, res) => {
   });
 });
 
-
+//get all the payment info of the owner
 app.get("/paymentInfo/:ownerId", (req, res) => {
   const ownerId = req.params.ownerId;
-
+  //distinct to make sure only one payment method shows up
   const query = `
     SELECT DISTINCT 'Credit Card' AS PaymentType, \`Card Number\` AS AccountNumber
     FROM credit_card
@@ -338,9 +335,6 @@ app.get("/paymentInfo/:ownerId", (req, res) => {
     }
   });
 });
-
-
-
 
 //update owner profile
 app.put("/ownerView/:id", (req, res) => {
@@ -400,26 +394,6 @@ app.put("/ownerView/:id", (req, res) => {
   });
 });
 
-app.post("/acceptBid", (req, res) => {
-  const { requestId, idcleaner, idowner} = req.body;
-  if (!requestId || !idcleaner) {
-    return res.status(400).send("Missing requestId or bidId.");
-  }
-  // SQL query to insert data into the order table
-  const query = `
-    INSERT INTO orders (idrequest, idcleaner, idowner) 
-    VALUES (?, ?, ?)
-  `;
-
-  db.execute(query, [requestId, idcleaner, idowner], (err, results) => {
-    if (err) {
-      console.error("Error inserting into orders table:", err);
-      return res.status(500).json({ error: "Failed to accept bid and insert into orders." });
-    }
-    res.status(201).json({ message: "Bid accepted and order created successfully!" });
-  });
-});
-
 //edit request based on the request ID
 app.put("/updateRequest/:id", (req, res) => {
   const requestId = req.params.id;
@@ -447,7 +421,27 @@ app.put("/updateRequest/:id", (req, res) => {
   );
 });
 
+//accept the bid of the cleaner
+app.post("/acceptBid", (req, res) => {
+  const { requestId, idcleaner, idowner} = req.body;
+  if (!requestId || !idcleaner) {
+    return res.status(400).send("Missing requestId or bidId.");
+  }
+  const query = `
+    INSERT INTO orders (idrequest, idcleaner, idowner) 
+    VALUES (?, ?, ?)
+  `;
 
+  db.execute(query, [requestId, idcleaner, idowner], (err, results) => {
+    if (err) {
+      console.error("Error inserting into orders table:", err);
+      return res.status(500).json({ error: "Failed to accept bid and insert into orders." });
+    }
+    res.status(201).json({ message: "Bid accepted and order created successfully!" });
+  });
+});
+
+//get owner's orders (whch excludes made transasctions)
 app.get('/ownerorders/:id', (req, res) => {
   const ownerId = req.params.id;  // Get the ownerId from the URL parameter
 
@@ -484,13 +478,14 @@ app.get('/ownerorders/:id', (req, res) => {
   });
 });
 
+//Add payment queries
+//add credit card
 app.post('/addCreditCard/:id', (req, res) => {
   const { id } = req.params; 
   const { cardNumber, cardName, billingAddress, expiryDate } = req.body; 
-  // Format expiry date if needed
   let formattedExpiryDate = expiryDate;
   if (expiryDate && !expiryDate.includes("-")) {
-    formattedExpiryDate = `${expiryDate}-28`; // Assuming the last day of the month is 28th
+    formattedExpiryDate = `${expiryDate}-28`;
   } else if (expiryDate && expiryDate.split("-").length === 2) {
     formattedExpiryDate = `${expiryDate}-28`;
   }
@@ -506,12 +501,11 @@ app.post('/addCreditCard/:id', (req, res) => {
   });
 });
 
-
+//add debit card
 app.post('/addDebitCard/:id', (req, res) => {
-  const { id } = req.params;  // The owner ID passed as a URL parameter
+  const { id } = req.params; 
   const { cardNumber, cardName, billingAddress, expiryDate } = req.body;  
 
-  // Format expiry date if needed
   let formattedExpiryDate = expiryDate;
   if (expiryDate && !expiryDate.includes("-")) {
     formattedExpiryDate = `${expiryDate}-28`;
@@ -519,11 +513,9 @@ app.post('/addDebitCard/:id', (req, res) => {
     formattedExpiryDate = `${expiryDate}-28`;
   }
 
-  // Prepare SQL query
   const query = `INSERT INTO debit_card (idowner, \`Card Number\`, \`Name\`, \`Billing Address\`, \`Expiry Date\`) 
                  VALUES (?, ?, ?, ?, ?)`;
 
-  // Execute the query
   db.query(query, [id, cardNumber, cardName, billingAddress, formattedExpiryDate], (err, result) => {
     if (err) {
       console.error("Error adding debit_card card:", err);
@@ -533,7 +525,7 @@ app.post('/addDebitCard/:id', (req, res) => {
   });
 });
 
-
+//add paypal account
 app.post('/addPaypal/:id', (req, res) => {
   const { id } = req.params;
   const { accountNumber } = req.body;
@@ -550,10 +542,10 @@ app.post('/addPaypal/:id', (req, res) => {
   });
 });
 
+//sends order to complete on owner side to make it a transasction
 app.post("/completeOrder", (req, res) => {
-  const { orderId, cleanerId, ownerId } = req.body; // Get the orderId, cleanerId, and ownerId from the request body
+  const { orderId, cleanerId, ownerId } = req.body;
 
-  // Check if the required fields are provided
   if (!orderId || !cleanerId || !ownerId) {
     return res.status(400).send("Order ID, Cleaner ID, and Owner ID are required.");
   }
@@ -571,7 +563,7 @@ app.post("/completeOrder", (req, res) => {
   });
 });
 
-
+// get the transactions made by the owner
 app.get('/ownertransactions/:id', (req, res) => {
   const ownerId = req.params.id;
   const query = `
@@ -598,10 +590,11 @@ app.get('/ownertransactions/:id', (req, res) => {
       console.error("Error fetching transactions:", err);
       return res.status(500).json({ error: "Failed to fetch transactions." });
     }
-    res.json(results); // Send back the transaction data
+    res.json(results);
   });
 });
 
+//submit feedback by the owner to the cleaner
 app.post('/submitFeedback', (req, res) => {
   const { orderId, cleanerId, ownerId, reliability, satisfaction, cleanliness, comment } = req.body;
 
