@@ -101,6 +101,24 @@ Follow the steps below to set up and run the project:
   - `axios`
 
 ---
+Database Initialization Using MySQL Workbench
+
+1. Install MySQL Workbench: Download and install MySQL Workbench from the official website.
+
+2. Connect to Your MySQL Server:
+- Open MySQL Workbench.
+- Click on + to create a new connection, or select an existing connection.
+- Enter your MySQL credentials and connect to the server.
+
+3. Create a New Database:
+In the toolbar, select Schemas.Right-click on the white space and select Create Schema. Name the schema airbnbnetwork and click Apply.
+
+4. Import the attached SQL File:
+The queries from the file will appear in the query editor.
+
+6. Execute the Queries:
+Click the Execute button to run all queries and create the tables.
+
 
 ## Contribution
 
